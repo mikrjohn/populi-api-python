@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="populi-mrobison",
-    version="0.0.2",
+    version="0.0.3",
     author="Mike Robison",
     author_email="mrobison@wts.edu",
     description="A module for interacting with the populi api.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    #url="https://github.com/pypa/populi",
+    url="https://github.com/wts-dev/populi-api-python",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
