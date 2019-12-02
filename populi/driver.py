@@ -6,6 +6,7 @@ import time
 from urllib.parse import urlencode
 from os import environ
 
+from . import exceptions
 
 logger = logging.getLogger(__name__)
 request_count = 0
@@ -24,13 +25,20 @@ def request(endpoint, parameters):
     c.setopt(pycurl.POSTFIELDS, urlencode(parameters, True))
     c.setopt(pycurl.WRITEDATA, b)
     c.perform()
+
+    response_code = c.getinfo(pycurl.RESPONSE_CODE)
+
     c.close()
+
+    if response_code == 429:
+        raise exceptions.TooManyRequests('Too many requests')
+
     b.seek(0)
 
     return b
 
 
-class TooManyRequests(Exception):
+class TooManyRequests(exceptions.TooManyRequests):
     pass
 
 
@@ -84,12 +92,16 @@ class driver(object):
                 b = request(driver.endpoint, parameters)
 
                 xml = etree.parse(b).getroot()
-                if xml.xpath('//error/code[text()="429"]'):
-                    raise TooManyRequests('Too Many Requests')
+
+                if xml.xpath('/error'):
+                    driver.raise_exception(xml)
+
                 return b
-            except TooManyRequests:
+            except exceptions.TooManyRequests:
                 time.sleep(retry)
                 retry += retry
+            except exceptions.BasePopuliException:
+                raise
             except BaseException as e:
                 print("Other Error: {}".format(e), end="", flush=True)
                 print(repr(driver.endpoint), flush=True)
@@ -97,6 +109,16 @@ class driver(object):
                 logger.warning('Retrying Curl Execution')
                 time.sleep(retry)
                 retry += retry
+
+    @staticmethod
+    def raise_exception(xml):
+        msg = xml.xpath('/error/message/text()')[0]
+        code = xml.xpath('/error/code/text()')[0]
+
+        try:
+            raise exceptions.exception_lookup[code](msg)
+        except KeyError:
+            raise exceptions.exception_lookup['OTHER_ERROR'](msg)
 
     @staticmethod
     def get_anonymous(task='', **kwargs):

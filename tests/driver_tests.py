@@ -5,7 +5,7 @@ from io import BytesIO
 from urllib.parse import urlencode
 
 from populi import driver
-
+from populi import exceptions
 
 class TestDriver(unittest.TestCase):
 
@@ -62,6 +62,51 @@ class TestDriver(unittest.TestCase):
             {'a': 'b', 'access_key': driver.driver.endpoint})
 
         self.assertEqual(result, bio)
+
+    @patch('populi.driver.request')
+    def test_call_populi_raises_authentication_error(self, mock_request):
+        bio = BytesIO()
+        bio.write(b'<?xml version="1.0" encoding="ISO-8859-1"?><error><code>AUTHENTICATION_ERROR</code><message>Malformed access key</message></error>')
+        bio.seek(0)
+        mock_request.return_value = bio
+        driver.driver.access_key = 'override'
+        driver.driver.endpoint = 'endpoint'
+
+        try:
+            result = driver.driver.call_populi({'a': 'b'})
+            self.assertTrue(False, 'Should have raised AuthenticationError')
+        except exceptions.AuthenticationError as e:
+            self.assertEqual('Malformed access key', str(e))
+
+    @patch('populi.driver.request')
+    def test_call_populi_raises_unknown_task(self, mock_request):
+        bio = BytesIO()
+        bio.write(b'<?xml version="1.0" encoding="ISO-8859-1"?><error><code>UNKNOWN_TASK</code><message>Unknown Task</message></error>')
+        bio.seek(0)
+        mock_request.return_value = bio
+        driver.driver.access_key = 'override'
+        driver.driver.endpoint = 'endpoint'
+
+        try:
+            result = driver.driver.call_populi({'a': 'b'})
+            self.assertTrue(False, 'Should have raised UnknownTask')
+        except exceptions.UnknownTask as e:
+            self.assertEqual('Unknown Task', str(e))
+
+    @patch('populi.driver.request')
+    def test_call_populi_raises_other_when_unknown(self, mock_request):
+        bio = BytesIO()
+        bio.write(b'<?xml version="1.0" encoding="ISO-8859-1"?><error><code>WHATEVER_TASK</code><message>Unknown Task</message></error>')
+        bio.seek(0)
+        mock_request.return_value = bio
+        driver.driver.access_key = 'override'
+        driver.driver.endpoint = 'endpoint'
+
+        try:
+            result = driver.driver.call_populi({'a': 'b'})
+            self.assertTrue(False, 'Should have raised Other Error')
+        except exceptions.OtherError as e:
+            self.assertEqual('Unknown Task', str(e))
 
 
 if __name__ == '__main__':
