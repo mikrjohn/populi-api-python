@@ -56,12 +56,12 @@ class TestDriver(unittest.TestCase):
         driver.driver.access_key = 'override'
         driver.driver.endpoint = 'endpoint'
 
-        result = driver.driver.call_populi({'a': 'b'})
+        (result_byte, result_xml) = driver.driver.call_populi({'a': 'b'})
 
         mock_request.called_once_with(driver.driver.endpoint,
             {'a': 'b', 'access_key': driver.driver.endpoint})
 
-        self.assertEqual(result, bio)
+        self.assertEqual(result_byte, bio)
 
     @patch('populi.driver.request')
     def test_call_populi_raises_authentication_error(self, mock_request):
@@ -73,7 +73,7 @@ class TestDriver(unittest.TestCase):
         driver.driver.endpoint = 'endpoint'
 
         try:
-            result = driver.driver.call_populi({'a': 'b'})
+            driver.driver.call_populi({'a': 'b'})
             self.assertTrue(False, 'Should have raised AuthenticationError')
         except exceptions.AuthenticationError as e:
             self.assertEqual('Malformed access key', str(e))
@@ -88,7 +88,7 @@ class TestDriver(unittest.TestCase):
         driver.driver.endpoint = 'endpoint'
 
         try:
-            result = driver.driver.call_populi({'a': 'b'})
+            driver.driver.call_populi({'a': 'b'})
             self.assertTrue(False, 'Should have raised UnknownTask')
         except exceptions.UnknownTask as e:
             self.assertEqual('Unknown Task', str(e))
@@ -103,7 +103,7 @@ class TestDriver(unittest.TestCase):
         driver.driver.endpoint = 'endpoint'
 
         try:
-            result = driver.driver.call_populi({'a': 'b'})
+            driver.driver.call_populi({'a': 'b'})
             self.assertTrue(False, 'Should have raised Other Error')
         except exceptions.OtherError as e:
             self.assertEqual('Unknown Task', str(e))

@@ -71,9 +71,8 @@ class driver(object):
             'password': password
         }
 
-        response = driver.call_populi(parameters, skip_access_key=True)
+        (response, xml) = driver.call_populi(parameters, skip_access_key=True)
 
-        xml = etree.parse(response)
         return xml.find('access_key').text
 
     @staticmethod
@@ -96,7 +95,7 @@ class driver(object):
                 if xml.xpath('/error'):
                     driver.raise_exception(xml)
 
-                return b
+                return b, xml
             except exceptions.TooManyRequests:
                 time.sleep(retry)
                 retry += retry
@@ -119,16 +118,6 @@ class driver(object):
             raise exceptions.exception_lookup['OTHER_ERROR'](msg)
 
     @staticmethod
-    def get_anonymous(task='', **kwargs):
-        kwargs.update({'task': task})
-
-        logger.debug("Executing %s" % task)
-
-        api_response = driver.call_populi(kwargs)
-
-        return api_response.getvalue().decode('UTF-8')
-
-    @staticmethod
     def get_all_anonymous(task='', root_element='', **kwargs):
 
         logger.debug("Executing %s" % task)
@@ -143,8 +132,7 @@ class driver(object):
         while total > curr:
             logger.debug("Page %d" % kwargs['page'])
 
-            result = driver.call_populi(kwargs)
-            xml = etree.parse(result).getroot()
+            (result, xml) = driver.call_populi(kwargs)
             total = int(xml.get('num_results'))
 
             els = xml.findall(root_element)
@@ -168,7 +156,7 @@ class driver(object):
 
         xml_string = etree.tostring(master, xml_declaration=True, encoding="ISO-8859-1")
 
-        return xml_string
+        return xml_string, master
 
 
 use_lxml = False
@@ -197,12 +185,15 @@ def get_anonymous(task, **kwargs):
         if argv is not None:
             new_kwargs[argc] = argv
 
-    result = driver.get_anonymous(task=task, **new_kwargs)
+    new_kwargs.update({'task': task})
+
+    logger.debug("Executing %s" % task)
+
+    (result, xml) = driver.call_populi(kwargs).getvalue().decode('UTF-8')
 
     if use_lxml:
-        xml = etree.fromstring(result.encode('UTF-8'))
         if xml.tag == 'code':
-            raise Exception(xml.text)
+            raise exceptions.OtherError(xml.text)
         return xml
     else:
         return result
@@ -215,13 +206,12 @@ def get_all_anonymous(task, root_element, **kwargs):
         if argv is not None:
             new_kwargs[argc] = argv
 
-    result = driver.get_all_anonymous(
+    (result, xml) = driver.get_all_anonymous(
         task=task, root_element=root_element, **new_kwargs)
 
     if use_lxml:
-        xml = etree.fromstring(result)
         if xml.tag == 'code':
-            raise Exception(xml.text)
+            raise exceptions.OtherError(xml.text)
         return xml
     else:
         return result.decode('UTF-8')
