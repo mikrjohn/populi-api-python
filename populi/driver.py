@@ -106,9 +106,7 @@ class driver(object):
                 print("Other Error: {}".format(e), end="", flush=True)
                 print(repr(driver.endpoint), flush=True)
                 print(repr(urlencode(parameters)), flush=True)
-                logger.warning('Retrying Curl Execution')
-                time.sleep(retry)
-                retry += retry
+                raise
 
     @staticmethod
     def raise_exception(xml):
