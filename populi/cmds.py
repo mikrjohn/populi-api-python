@@ -1607,6 +1607,7 @@ def get_applications(
         program_id: str = None,
         degree_id: str = None,
         specialization_id: str = None,
+        lead_active: str = None,
         offset: str = None):
     """
     Returns applications based on the filter conditions.
@@ -1618,6 +1619,7 @@ def get_applications(
     :param program_id: The numeric ID of the program you're interested in.
     :param degree_id: The numeric ID of the degree you're interested in.
     :param specialization_id: The numeric ID of the specialization you're interested in.
+    :param lead_active: Boolean. 1 or 0.
     :param offset: The numeric value you want to offset the results by.
     :returns: String containing xml or an lxml element.
     """
@@ -1631,6 +1633,7 @@ def get_applications(
         program_id=program_id,
         degree_id=degree_id,
         specialization_id=specialization_id,
+        lead_active=lead_active,
         offset=offset)
 
 
@@ -2311,6 +2314,17 @@ def get_person_leads(person_id: str = None):
     return get_anonymous('getPersonLeads', person_id=person_id)
 
 
+def get_person_locks(person_id: str = None):
+    """
+    Returns locks for a particular person.
+
+    :param person_id: The numeric ID of the person you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getPersonLocks', person_id=person_id)
+
+
 def get_person_relationships(person_id: str = None):
     """
     Returns relationships for a particular person.
@@ -2757,15 +2771,19 @@ def get_tuition_schedules():
     return get_anonymous('getTuitionSchedules')
 
 
-def get_updated_enrollment(start_date: str = None):
+def get_updated_enrollment(start_date: str = None, offset: str = None):
     """
     Returns updated enrollment for a particular time.
 
     :param start_date: Format should be a date like "2010-11-06".
+    :param offset: The numeric value you want to offset the results by.
     :returns: String containing xml or an lxml element.
     """
 
-    return get_anonymous('getUpdatedEnrollment', start_date=start_date)
+    return get_anonymous(
+        'getUpdatedEnrollment',
+        start_date=start_date,
+        offset=offset)
 
 
 def get_updated_people(start_time: str = None, offset: str = None):
