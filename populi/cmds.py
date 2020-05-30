@@ -15,13 +15,13 @@ def add_address(
     """
     Adds an address to a person or organization.
 
-    :param person_id: Numeric ID of the person to whose profile you are attaching this address.
-    :param organization_id: Numeric ID of the organization to whose profile you are attaching this address.
+    :param person_id: The numeric ID of the person to whose profile you are attaching this address.
+    :param organization_id: The numeric ID of the organization to whose profile you are attaching this address.
     :param street: e.g. 777 Magnolia Ln
     :param city: e.g. Moscow
     :param state: e.g. ID
     :param postal: e.g. 83843
-    :param country: e.g. USA
+    :param country: e.g. US
     :param type: Person addresses: HOME, WORK, BILLING, SCHOOL, SHIPPING, OTHER
     :param primary: Boolean. Use if you want to mark the address as primary or not primary. Defaults to false.
     :param public: Boolean. Use if you want to mark the address as public or not public. Defaults to true.
@@ -42,19 +42,21 @@ def add_address(
         public=public)
 
 
-def add_advisor_to_student(advisor_id: str = None, student_id: str = None):
+def add_advisor_to_student(
+        advisor_person_id: str = None,
+        student_person_id: str = None):
     """
     Adds an advisor to a student.
 
-    :param advisor_id: The numeric ID of the advisor you're interested in.
-    :param student_id: The numeric ID of the student you're interested in.
+    :param advisor_person_id: The numeric person ID of the advisor you're interested in.
+    :param student_person_id: The numeric person ID of the student you're interested in.
     :returns: String containing xml or an lxml element.
     """
 
     return get_anonymous(
         'addAdvisorToStudent',
-        advisor_id=advisor_id,
-        student_id=student_id)
+        advisor_person_id=advisor_person_id,
+        student_person_id=student_person_id)
 
 
 def add_aid_application(
@@ -151,17 +153,17 @@ def add_application(
     """
     Adds an admissions application.
 
-    :param application_template_id: Numeric ID of the application template.
-    :param person_id: Numeric ID of the person who is the applicant.
-    :param lead_id: Numeric ID of the lead record this application should be attached to. Defaults to the person's active lead record. If no active lead record exists a new one will be created. Requires person_id.
+    :param application_template_id: The numeric ID of the application template.
+    :param person_id: The numeric ID of the person who is the applicant.
+    :param lead_id: The numeric ID of the lead record this application should be attached to. Defaults to the person's active lead record. If no active lead record exists a new one will be created. Requires person_id.
     :param first_name: The first name of the applicant.
     :param middle_name: The middle name of the applicant.
     :param last_name: The last name of the applicant.
     :param email_address: The email address of the applicant.
     :param start_date: The date this application was started (e.g. 2014-01-15). Defaults to the current date.
-    :param representative_id: Numeric ID of the admissions representative who will be assigned to this application.
-    :param program_id: Numeric ID of the program the applicant is applying to.
-    :param academic_term_id: Numeric ID of the academic term the applicant wishes to enroll in.
+    :param representative_id: The numeric ID of the admissions representative who will be assigned to this application.
+    :param program_id: The numeric ID of the program the applicant is applying to.
+    :param academic_term_id: The numeric ID of the academic term the applicant wishes to enroll in.
     :param expected_enrollment: FULL_TIME (default), HALF_TIME, LESS_THAN_HALF_TIME
     :param email_link_to_applicant: Boolean. A link to the application will be emailed to the applicant. Defaults to true.
     :param request_email_verification: Boolean. An verification email will be sent to the applicant. Defaults to false.
@@ -203,7 +205,7 @@ def add_application_note(
     """
     Adds a note to an existing application.
 
-    :param application_id: Numeric ID of the application.
+    :param application_id: The numeric ID of the application.
     :param content: The text content of the note.
     :param public: Boolean. Defaults to false.
     :returns: String containing xml or an lxml element.
@@ -214,6 +216,32 @@ def add_application_note(
         application_id=application_id,
         content=content,
         public=public)
+
+
+def add_assignment_comment(
+        assignment_id: str = None,
+        person_id: str = None,
+        comment: str = None,
+        file: str = None,
+        internal: str = None):
+    """
+    Adds an assignment comment to a particular assignment and student.
+
+    :param assignment_id: Numeric ID of the assignment.
+    :param person_id: Numeric ID of the student.
+    :param comment: The comment content.
+    :param file: File uploaded the via the HTTP POST method.
+    :param internal: Boolean. Use if you want the assignment comment to be an internal comment. Defaults to false.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addAssignmentComment',
+        assignment_id=assignment_id,
+        person_id=person_id,
+        comment=comment,
+        file=file,
+        internal=internal)
 
 
 def add_campus_to_student(person_id: str = None, campus_id: str = None):
@@ -412,6 +440,71 @@ def add_default_tuition_schedule_to_student(
         tuition_schedule_id=tuition_schedule_id)
 
 
+def add_donation(
+        amount: str = None,
+        posted_date: str = None,
+        fund_id: str = None,
+        funds: str = None,
+        payment_method: str = None,
+        deposit_into_account_id: str = None,
+        first_name: str = None,
+        last_name: str = None,
+        org_name: str = None,
+        person_id: str = None,
+        organization_id: str = None,
+        payment_reference: str = None,
+        gift_in_kind_description: str = None,
+        staff_comment: str = None,
+        phone_number: str = None,
+        email_address: str = None,
+        campaign_id: str = None,
+        appeal_id: str = None):
+    """
+    Adds a new donation.
+
+    :param amount: The total amount of the donation.
+    :param posted_date: The date the donation transaction was posted. If this parameter is not supplied, then the donation will be considered posted today.
+    :param fund_id: The numeric ID of the fund the donation is applied to.
+    :param funds: An array of fund_ids and amounts, in JSON format, if the donation should be split between multiple funds. (e.g. [{"fund_id":522,"amount":150.00}, {"fund_id":526, "amount":50}])
+    :param payment_method: CASH, CHECK, CREDIT_CARD, ACH, MONEY_ORDER, GIFT_IN_KIND, or OTHER
+    :param deposit_into_account_id: The numeric ID of the financial asset account where the donation money is deposited.
+    :param first_name: The first name of the donor.
+    :param last_name: The last name of the donor
+    :param org_name: If the donor is an organization, provide the name here.
+    :param person_id: To link this donation to an existing person as the donor, supply their numeric ID here. If this parameter is supplied, then first_name and last_name are not required.
+    :param organization_id: To link this donation to an existing organization as the donor, supply their numeric ID here. If this parameter is supplied, then first_name and last_name are not required.
+    :param payment_reference: Additional information about the payment, such as a check number.
+    :param gift_in_kind_description: if the payment_method is GIFT_IN_KIND, use this parameter to describe what was donated.
+    :param staff_comment: The comment about this donation only visible to staff.
+    :param phone_number: The phone number of the donor. Typically leave blank if person_id or organization_id is included.
+    :param email_address: The email address of the donor. Typically leave blank if person_id or organization_id is included.
+    :param campaign_id: The numeric ID of the campaign associated with this donation.
+    :param appeal_id: The numeric ID of the appeal associated with this donation.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addDonation',
+        amount=amount,
+        posted_date=posted_date,
+        fund_id=fund_id,
+        funds=funds,
+        payment_method=payment_method,
+        deposit_into_account_id=deposit_into_account_id,
+        first_name=first_name,
+        last_name=last_name,
+        org_name=org_name,
+        person_id=person_id,
+        organization_id=organization_id,
+        payment_reference=payment_reference,
+        gift_in_kind_description=gift_in_kind_description,
+        staff_comment=staff_comment,
+        phone_number=phone_number,
+        email_address=email_address,
+        campaign_id=campaign_id,
+        appeal_id=appeal_id)
+
+
 def add_email_address(
         person_id: str = None,
         organization_id: str = None,
@@ -422,8 +515,8 @@ def add_email_address(
     """
     Adds an email to a person or organization.
 
-    :param person_id: Numeric ID of the person to whose profile you are attaching this email address.
-    :param organization_id: Numeric ID of the organization to whose profile you are attaching this email address.
+    :param person_id: The numeric ID of the person to whose profile you are attaching this email address.
+    :param organization_id: The numeric ID of the organization to whose profile you are attaching this email address.
     :param email_address: e.g. bob@example.com
     :param type: Person email addresses: HOME, WORK, SCHOOL, OTHER
     :param primary: Boolean. Use if you want to mark the email address as primary or not primary. Defaults to false.
@@ -467,6 +560,38 @@ def add_enrollment(
         catalog_course_id=catalog_course_id)
 
 
+def add_field_of_study(
+        organization_id: str = None,
+        person_id: str = None,
+        name: str = None,
+        start_date: str = None,
+        end_date: str = None,
+        is_private: str = None,
+        can_show_on_transcript: str = None):
+    """
+    Adds a field of study to a person.
+
+    :param organization_id: The numeric ID of the organization.
+    :param person_id: The numeric ID of the person.
+    :param name: The name of the field of study.
+    :param start_date: Format should be a date like "2020-09-05".
+    :param end_date: Format should be a date like "2024-05-07".
+    :param is_private: Boolean. Defaults to the "Make relationships between people and organizations private by default" security setting.
+    :param can_show_on_transcript: Boolean. Defaults to true.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addFieldOfStudy',
+        organization_id=organization_id,
+        person_id=person_id,
+        name=name,
+        start_date=start_date,
+        end_date=end_date,
+        is_private=is_private,
+        can_show_on_transcript=can_show_on_transcript)
+
+
 def add_financial_aid_award(
         person_id: str = None,
         aid_year_id: str = None,
@@ -475,7 +600,8 @@ def add_financial_aid_award(
         net_amount: str = None,
         status: str = None,
         max_amount: str = None,
-        disbursements: str = None):
+        disbursements: str = None,
+        include_details: str = None):
     """
     Adds a new financial aid award to a student in a given aid year, and optionally add disbursements.
 
@@ -486,7 +612,8 @@ def add_financial_aid_award(
     :param net_amount: The net amount of this award.
     :param status: Possible values: SETUP, OFFERED, ACCEPTED, DECLINED, CANCELED.
     :param max_amount: The maximum amount for this award.
-    :param disbursements: A json encoded array of disbursements, each row with the following keys: date, net_amount, gross_amount, academic_term_id
+    :param disbursements: An array of json encoded objects, each with the following keys: date, net_amount, gross_amount, academic_term_id
+    :param include_details: Boolean. Defaults to false. If true, additional details about the newly added award and disbursements will be included in the reponse.
     :returns: String containing xml or an lxml element.
     """
 
@@ -499,7 +626,8 @@ def add_financial_aid_award(
         net_amount=net_amount,
         status=status,
         max_amount=max_amount,
-        disbursements=disbursements)
+        disbursements=disbursements,
+        include_details=include_details)
 
 
 def add_financial_aid_disbursement(
@@ -573,7 +701,7 @@ def add_inquiry(
         academic_term_id: str = None,
         content: str = None,
         added_on: str = None,
-        counselor_id: str = None,
+        representative_id: str = None,
         create_response: str = None,
         street: str = None,
         city: str = None,
@@ -595,7 +723,7 @@ def add_inquiry(
     :param academic_term_id: The numeric ID of the academic term the person is interested in attending.
     :param content: The text content of the person's request
     :param added_on: The date the inquiry was made in the format '2016-10-27'
-    :param counselor_id: The numeric ID of the person to assign this inquiry to as a representative.
+    :param representative_id: The numeric ID of the person to assign this inquiry to as a representative.
     :param create_response: Boolean. Create a response thread and/or email a thank you message on create? Defaults to false.
     :param street: The person's street address.
     :param city: The person's city.
@@ -619,13 +747,25 @@ def add_inquiry(
         academic_term_id=academic_term_id,
         content=content,
         added_on=added_on,
-        counselor_id=counselor_id,
+        representative_id=representative_id,
         create_response=create_response,
         street=street,
         city=city,
         state=state,
         postal=postal,
         country=country)
+
+
+def add_organization(name: str = None, type_id: str = None):
+    """
+    Adds a new organization into Populi.
+
+    :param name: The name of the organization.
+    :param type_id: The numeric ID of the type.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('addOrganization', name=name, type_id=type_id)
 
 
 def add_payment(
@@ -737,8 +877,8 @@ def add_phone_number(
     """
     Adds a phone number to a person or organization.
 
-    :param person_id: Numeric ID of the person to whose profile you are attaching this phone number.
-    :param organization_id: Numeric ID of the organization to whose profile you are attaching this phone number.
+    :param person_id: The numeric ID of the person to whose profile you are attaching this phone number.
+    :param organization_id: The numeric ID of the organization to whose profile you are attaching this phone number.
     :param phone_number: e.g. 1-800-888-8888
     :param type: Person phone numbers: HOME, WORK, MOBILE, SCHOOL, FAX, OTHER
     :param primary: Boolean. Use if you want to mark the phone number as primary or not primary. Defaults to false.
@@ -772,7 +912,7 @@ def add_role(person_id: str = None, role_id: str = None):
     """
     Adds a role to a person.
 
-    :param person_id: Numeric ID of the person you're interested in.
+    :param person_id: The numeric ID of the person you're interested in.
     :param role_id: The numeric ID of the role you want to add.
     :returns: String containing xml or an lxml element.
     """
@@ -818,9 +958,9 @@ def add_student_degree_specialization(
     """
     Adds a specialization to student's existing degree.
 
-    :param person_id: Numeric ID of the person you're interested in.
-    :param degree_student_id: Numeric ID of the degree_student object in question.
-    :param specialization_id: Numeric ID of the specialization you wish to add.
+    :param person_id: The numeric ID of the person you're interested in.
+    :param degree_student_id: The numeric ID of the degree_student object in question.
+    :param specialization_id: The numeric ID of the specialization you wish to add.
     :param granted_date: The granted date in the format '2012-10-10'.
     :param show_on_transcript: Possible values: 1 (default) or 0. Whether the specialization should show on the transcript.
     :returns: String containing xml or an lxml element.
@@ -855,17 +995,27 @@ def add_student_program(
         start_date=start_date)
 
 
-def add_tag(person_id: str = None, tag_id: str = None, tag: str = None):
+def add_tag(
+        person_id: str = None,
+        organization_id: str = None,
+        tag_id: str = None,
+        tag: str = None):
     """
     Adds a tag to a particular person.
 
-    :param person_id: Numeric ID of the person who should be tagged.
-    :param tag_id: Numeric ID of the tag.
+    :param person_id: The numeric ID of the person who should be tagged.
+    :param organization_id: The numeric ID of the organization that should be tagged.
+    :param tag_id: The numeric ID of the tag.
     :param tag: The actual tag you want to be attached (e.g. "Do not call", or "Good reference").
     :returns: String containing xml or an lxml element.
     """
 
-    return get_anonymous('addTag', person_id=person_id, tag_id=tag_id, tag=tag)
+    return get_anonymous(
+        'addTag',
+        person_id=person_id,
+        organization_id=organization_id,
+        tag_id=tag_id,
+        tag=tag)
 
 
 def add_term_tuition_schedule_to_student(
@@ -917,6 +1067,106 @@ def add_todo(
         attached_to=attached_to)
 
 
+def add_transfer_credit(
+        organization_id: str = None,
+        person_id: str = None,
+        course_number: str = None,
+        course_name: str = None,
+        credits: str = None,
+        hours: str = None,
+        clinical_hours: str = None,
+        attendance_hours: str = None,
+        fulfills_program_requirements: str = None,
+        pass_affects_gpa: str = None,
+        fail_affects_gpa: str = None,
+        pass_fail_pass_affects_gpa: str = None,
+        pass_fail_fail_affects_gpa: str = None,
+        affects_standing: str = None,
+        catalog_course_id: str = None,
+        course_group_id: str = None,
+        description: str = None,
+        status: str = None,
+        effective_date: str = None,
+        applies_to_all_programs: str = None):
+    """
+    Adds a transfer credit to a person.
+
+    :param organization_id: The numeric ID of the organization. Transfer Instutitions are Organizations.
+    :param person_id: The numeric ID of the person.
+    :param course_number:  
+    :param course_name:  
+    :param credits:  
+    :param hours:  
+    :param clinical_hours:  
+    :param attendance_hours:  
+    :param fulfills_program_requirements: Boolean. Defaults to true.
+    :param pass_affects_gpa: Boolean. Defaults to true.
+    :param fail_affects_gpa: Boolean. Defaults to true.
+    :param pass_fail_pass_affects_gpa: Boolean. Defaults to false.
+    :param pass_fail_fail_affects_gpa: Boolean. Defaults to true.
+    :param affects_standing: Boolean. Defaults to true.
+    :param catalog_course_id: The numeric ID of the catalog course.
+    :param course_group_id: The numeric ID of the course group.
+    :param description:  
+    :param status: PENDING (default), APPROVED, or REJECTED
+    :param effective_date: Format should be a date like "2020-09-05".
+    :param applies_to_all_programs: Boolean. Defaults to true.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addTransferCredit',
+        organization_id=organization_id,
+        person_id=person_id,
+        course_number=course_number,
+        course_name=course_name,
+        credits=credits,
+        hours=hours,
+        clinical_hours=clinical_hours,
+        attendance_hours=attendance_hours,
+        fulfills_program_requirements=fulfills_program_requirements,
+        pass_affects_gpa=pass_affects_gpa,
+        fail_affects_gpa=fail_affects_gpa,
+        pass_fail_pass_affects_gpa=pass_fail_pass_affects_gpa,
+        pass_fail_fail_affects_gpa=pass_fail_fail_affects_gpa,
+        affects_standing=affects_standing,
+        catalog_course_id=catalog_course_id,
+        course_group_id=course_group_id,
+        description=description,
+        status=status,
+        effective_date=effective_date,
+        applies_to_all_programs=applies_to_all_programs)
+
+
+def add_transfer_credit_program(
+        transfer_credit_id: str = None,
+        program_id: str = None,
+        grade: str = None,
+        pass_fail: str = None,
+        show_on_transcript: str = None,
+        is_transfer_student: str = None):
+    """
+    Adds a program to a transfer credit.
+
+    :param transfer_credit_id: The numeric ID of the transfer credit you're interested in.
+    :param program_id: The numeric ID of the program you're interested in.
+    :param grade: Mixed. See getTransferCreditProgramGradeOptions for a list of values.
+    :param pass_fail: Boolean. Whether or not this the grade is a pass/fail grade. Defaults to false.
+    :param show_on_transcript: Boolean. Defaults to true. Whether or not the transfer credit should show up on the transcript. Only used when the transfer credit's status = APPROVED.
+    :param is_transfer_student: Boolean. Defaults to true. Whether or not the student is considered a transfer student in the particular program. Only used when the transfer credit's status = APPROVED.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addTransferCreditProgram',
+        transfer_credit_id=transfer_credit_id,
+        program_id=program_id,
+        grade=grade,
+        pass_fail=pass_fail,
+        show_on_transcript=show_on_transcript,
+        is_transfer_student=is_transfer_student)
+
+
 def add_user(
         person_id: str = None,
         username: str = None,
@@ -924,7 +1174,7 @@ def add_user(
     """
     Grants user access to a person.
 
-    :param person_id: Numeric ID of the person whose user account will be created.
+    :param person_id: The numeric ID of the person whose user account will be created.
     :param username: A username for the person. Allowed characters are letters, numbers, period and underscore. If no username is passed in Populi will autogenerate one.
     :param send_welcome_email: Boolean. Send a welcome email to the person's primary email address. Defaults to true.
     :returns: String containing xml or an lxml element.
@@ -941,7 +1191,7 @@ def block_user(person_id: str = None, reason: str = None):
     """
     Used to block a particular user account.
 
-    :param person_id: Numeric ID of the person whose user account will be blocked.
+    :param person_id: The numeric ID of the person whose user account will be blocked.
     :param reason: The reason the user account is being blocked.
     :returns: String containing xml or an lxml element.
     """
@@ -1026,11 +1276,22 @@ def delete_address(addressid: str = None):
     """
     Deletes an address.
 
-    :param addressid: Numeric ID of the address.
+    :param addressid: The numeric ID of the address.
     :returns: String containing xml or an lxml element.
     """
 
     return get_anonymous('deleteAddress', addressid=addressid)
+
+
+def delete_application(application_id: str = None):
+    """
+    Deletes an application from an applicant.
+
+    :param application_id: Numeric ID of the application.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('deleteApplication', application_id=application_id)
 
 
 def delete_campus_from_student(person_id: str = None, campus_id: str = None):
@@ -1118,12 +1379,14 @@ def delete_course_offering_link(
 
 def delete_custom_field(
         person_id: str = None,
+        owner_id: str = None,
         custom_field_id: str = None,
         term_id: str = None):
     """
-    Deletes a custom field attached a particular person.
+    Deletes a custom field attached a particular person, organization, or donation.
 
     :param person_id: The numeric ID of the person you're interested in.
+    :param owner_id: The numeric ID of the object you're interested in.
     :param custom_field_id: The numeric ID of the custom field you're interested in.
     :param term_id: The numeric ID of the term you're interested in.
     :returns: String containing xml or an lxml element.
@@ -1132,6 +1395,7 @@ def delete_custom_field(
     return get_anonymous(
         'deleteCustomField',
         person_id=person_id,
+        owner_id=owner_id,
         custom_field_id=custom_field_id,
         term_id=term_id)
 
@@ -1140,7 +1404,7 @@ def delete_email_address(emailid: str = None):
     """
     Deletes an email address.
 
-    :param emailid: Numeric ID of the email address.
+    :param emailid: The numeric ID of the email address.
     :returns: String containing xml or an lxml element.
     """
 
@@ -1237,6 +1501,17 @@ def delete_person_race_ethnicity(person_id: str = None):
     return get_anonymous('deletePersonRaceEthnicity', person_id=person_id)
 
 
+def delete_person_s_i_n(person_id: str = None):
+    """
+    Deletes the social insurance number for a particular person.
+
+    :param person_id: The numeric ID of the person you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('deletePersonSIN', person_id=person_id)
+
+
 def delete_person_s_s_n(person_id: str = None):
     """
     Deletes the social security number for a particular person.
@@ -1252,7 +1527,7 @@ def delete_phone_number(phoneid: str = None):
     """
     Deletes a phone number.
 
-    :param phoneid: Numeric ID of the phone number.
+    :param phoneid: The numeric ID of the phone number.
     :returns: String containing xml or an lxml element.
     """
 
@@ -1266,9 +1541,9 @@ def delete_student_degree_specialization(
     """
     Deletes a specialization attached to a student's degree.
 
-    :param person_id: Numeric ID of the person you're interested in.
-    :param degree_student_id: Numeric ID of the degree_student object in question.
-    :param specialization_id: Numeric ID of the specialization you wish to remove.
+    :param person_id: The numeric ID of the person you're interested in.
+    :param degree_student_id: The numeric ID of the degree_student object in question.
+    :param specialization_id: The numeric ID of the specialization you wish to remove.
     :returns: String containing xml or an lxml element.
     """
 
@@ -1277,6 +1552,40 @@ def delete_student_degree_specialization(
         person_id=person_id,
         degree_student_id=degree_student_id,
         specialization_id=specialization_id)
+
+
+def delete_student_meal_plan(
+        person_id: str = None,
+        academic_term_id: str = None):
+    """
+    Removes a meal plan from a student.
+
+    :param person_id: The numeric ID of the person.
+    :param academic_term_id: The numeric ID of the academic term you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'deleteStudentMealPlan',
+        person_id=person_id,
+        academic_term_id=academic_term_id)
+
+
+def delete_student_room_plan(
+        person_id: str = None,
+        academic_term_id: str = None):
+    """
+    Removes a room plan from a student.
+
+    :param person_id: The numeric ID of the person.
+    :param academic_term_id: The numeric ID of the academic term you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'deleteStudentRoomPlan',
+        person_id=person_id,
+        academic_term_id=academic_term_id)
 
 
 def delete_todo(todo_id: str = None):
@@ -1298,7 +1607,7 @@ def download_backup(backup_id: str = None):
     :returns: String containing xml or an lxml element.
     """
 
-    return get_anonymous('downloadBackup', backup_id=backup_id)
+    return get_anonymous('downloadBackup', raw_data=True, backup_id=backup_id)
 
 
 def download_file(file_id: str = None):
@@ -1309,7 +1618,7 @@ def download_file(file_id: str = None):
     :returns: String containing xml or an lxml element.
     """
 
-    return get_anonymous('downloadFile', file_id=file_id)
+    return get_anonymous('downloadFile', raw_data=True, file_id=file_id)
 
 
 def download_student_schedule(person_id: str = None, term_id: str = None):
@@ -1323,6 +1632,7 @@ def download_student_schedule(person_id: str = None, term_id: str = None):
 
     return get_anonymous(
         'downloadStudentSchedule',
+        raw_data=True,
         person_id=person_id,
         term_id=term_id)
 
@@ -1393,6 +1703,35 @@ def edit_aid_application(
         auto_zero_efc=auto_zero_efc,
         status=status,
         housing=housing)
+
+
+def edit_donation(
+        donation_id: str = None,
+        staff_comment: str = None,
+        campaign_id: str = None,
+        appeal_id: str = None,
+        acknowledged_at: str = None,
+        acknowledged_by: str = None):
+    """
+    Edits an existing donation.
+
+    :param donation_id: The numeric ID of the donation
+    :param staff_comment: The comment about this donation only visible to staff.
+    :param campaign_id: The numeric ID of the campaign associated with this donation.
+    :param appeal_id: The numeric ID of the appeal associated with this donation.
+    :param acknowledged_at: The date and time the donation was acknowledged. (e.g. 2019-05-02 14:00:00). Set this to blank to mark a donation as unacknowledged.
+    :param acknowledged_by: The numeric ID of the person who acknowledged the donation.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'editDonation',
+        donation_id=donation_id,
+        staff_comment=staff_comment,
+        campaign_id=campaign_id,
+        appeal_id=appeal_id,
+        acknowledged_at=acknowledged_at,
+        acknowledged_by=acknowledged_by)
 
 
 def edit_financial_aid_award(
@@ -1470,6 +1809,35 @@ def edit_financial_aid_refund(
         asset_account_id=asset_account_id)
 
 
+def edit_transfer_credit_program(
+        transfer_credit_id: str = None,
+        program_id: str = None,
+        grade: str = None,
+        pass_fail: str = None,
+        show_on_transcript: str = None,
+        is_transfer_student: str = None):
+    """
+    Used to edit a transfer credit's program data.
+
+    :param transfer_credit_id: The numeric ID of the transfer credit you're interested in.
+    :param program_id: The numeric ID of the program you're interested in.
+    :param grade: Mixed. See getTransferCreditProgramGradeOptions for a list of values.
+    :param pass_fail: Boolean. Whether or not this the grade is a pass/fail grade. Defaults to false.
+    :param show_on_transcript: Boolean. Defaults to true. Whether or not the transfer credit should show up on the transcript. Only used when the transfer credit's status = APPROVED.
+    :param is_transfer_student: Boolean. Defaults to true. Whether or not the student is considered a transfer student in the particular program. Only used when the transfer credit's status = APPROVED.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'editTransferCreditProgram',
+        transfer_credit_id=transfer_credit_id,
+        program_id=program_id,
+        grade=grade,
+        pass_fail=pass_fail,
+        show_on_transcript=show_on_transcript,
+        is_transfer_student=is_transfer_student)
+
+
 def finalize_course_instance(instance_id: str = None):
     """
     Finalizes a course instance.
@@ -1493,7 +1861,7 @@ def get_academic_terms():
 
 def get_academic_years():
     """
-    Returns all academic year IDs, as well as calendar years associated with each.
+    Returns all academic years.
 
     :returns: String containing xml or an lxml element.
     """
@@ -1542,11 +1910,21 @@ def get_all_custom_fields(type: str = None):
     return get_anonymous('getAllCustomFields', type=type)
 
 
+def get_appeals():
+    """
+    Returns all information related to donation appeals configured for your institution.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getAppeals')
+
+
 def get_application(application_id: str = None):
     """
     Returns an application.
 
-    :param application_id: Numeric ID of the application you're interested in.
+    :param application_id: The numeric ID of the application you're interested in.
     :returns: String containing xml or an lxml element.
     """
 
@@ -1573,8 +1951,8 @@ def get_application_field_options(
     """
     Returns the options for an application field.
 
-    :param application_field_id: Numeric ID of the application field you're interested in.
-    :param country: USA, CAN.
+    :param application_field_id: The numeric ID of the application field you're interested in.
+    :param country: US, CA
     :param degree_id: Numeric ID of a degree.
     :returns: String containing xml or an lxml element.
     """
@@ -1600,6 +1978,7 @@ def get_application_templates(show_online_only: str = None):
 
 
 def get_applications(
+        status: str = None,
         date_field: str = None,
         start_date: str = None,
         end_date: str = None,
@@ -1612,6 +1991,7 @@ def get_applications(
     """
     Returns applications based on the filter conditions.
 
+    :param status: Possible values: IN_PROGRESS, SUBMITTED, PENDING_DECISION, ACCEPTED, DECLINED, WITHDRAWN, DEFERRED, or WAITLISTED.
     :param date_field: The name of the date field you want to filter by (e.g. APPLIED, DECISION, SUBMITTED, or WITHDRAWN).
     :param start_date: The start date used to filter the "date_field" parameter.
     :param end_date: The end date used to filter the "date_field" parameter.
@@ -1626,6 +2006,7 @@ def get_applications(
 
     return get_anonymous(
         'getApplications',
+        status=status,
         date_field=date_field,
         start_date=start_date,
         end_date=end_date,
@@ -1637,6 +2018,21 @@ def get_applications(
         offset=offset)
 
 
+def get_assignment_comments(assignment_id: str = None, person_id: str = None):
+    """
+    Returns assignment comments for a particular assignment and person.
+
+    :param assignment_id: Numeric ID of the assignment.
+    :param person_id: Numeric ID of the person.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'getAssignmentComments',
+        assignment_id=assignment_id,
+        person_id=person_id)
+
+
 def get_available_roles():
     """
     Returns all the roles in Populi (Student, Staff, Admissions, etc).
@@ -1645,6 +2041,29 @@ def get_available_roles():
     """
 
     return get_anonymous('getAvailableRoles')
+
+
+def get_campaigns():
+    """
+    Returns all information related to donation campaigns configured for your institution.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getCampaigns')
+
+
+def get_campus_life_rooms(academic_term_id: str = None):
+    """
+    Returns campus life rooms.
+
+    :param academic_term_id: The numeric ID of the academic term you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'getCampusLifeRooms',
+        academic_term_id=academic_term_id)
 
 
 def get_campuses():
@@ -1826,7 +2245,7 @@ def get_course_instance_student_attendance(
     Gets attendance for all course instance meetings for a particular student.
 
     :param instanceID: The numeric ID of the course instance you're interested in.
-    :param person_id: Numeric ID of the person whose attendance you wish to look up.
+    :param person_id: The numeric ID of the person whose attendance you wish to look up.
     :returns: String containing xml or an lxml element.
     """
 
@@ -1870,6 +2289,16 @@ def get_current_academic_term():
     return get_anonymous('getCurrentAcademicTerm')
 
 
+def get_current_academic_year():
+    """
+    Returns the current academic year.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getCurrentAcademicYear')
+
+
 def get_custom_field_options(custom_field_id: str = None):
     """
     Returns available options for RADIO, CHECKBOX, and SELECT input type custom fields.
@@ -1886,13 +2315,15 @@ def get_custom_field_options(custom_field_id: str = None):
 def get_custom_fields(
         person_id: str = None,
         organization_id: str = None,
+        donation_id: str = None,
         type: str = None):
     """
     Returns custom fields attached to a particular person or organization.
 
     :param person_id: The numeric ID of the person you're interested in.
     :param organization_id: The numeric ID of the organization you're interested in.
-    :param type: ALL (default), PERSON, STUDENT, TERM_STUDENT, ADMISSIONS, CAMPUS_LIFE, FINANCIAL, or FINANCIAL_AID
+    :param donation_id: The numeric ID of the donation you're interested in.
+    :param type: ALL (default), PERSON, STUDENT, TERM_STUDENT, ADMISSIONS, CAMPUS_LIFE, FINANCIAL, or FINANCIAL_AID, DONATION, ORGANIZATION
     :returns: String containing xml or an lxml element.
     """
 
@@ -1900,7 +2331,33 @@ def get_custom_fields(
         'getCustomFields',
         person_id=person_id,
         organization_id=organization_id,
+        donation_id=donation_id,
         type=type)
+
+
+def get_data_slicer_report(report_id: str = None, export_format: str = None):
+    """
+    Produces and returns a data slicer report in CSV or XLS format.
+
+    :param report_id: The numeric ID of the data slicer report.
+    :param export_format: The file format of the report to be produced, either XLS or CSV.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'getDataSlicerReport',
+        report_id=report_id,
+        export_format=export_format)
+
+
+def get_data_slicer_reports():
+    """
+    Returns a list of data slicer reports available for use.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getDataSlicerReports')
 
 
 def get_degree_audit(
@@ -1936,6 +2393,37 @@ def get_degrees():
     return get_anonymous('getDegrees')
 
 
+def get_donation(donation_id: str = None):
+    """
+    Returns information about a specific donation.
+
+    :param donation_id: The numeric ID of the donation
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getDonation', donation_id=donation_id)
+
+
+def get_donor(
+        donor_id: str = None,
+        person_id: str = None,
+        organization_id: str = None):
+    """
+    Returns information about a donor, including a history of their donations.
+
+    :param donor_id: The numeric ID of the donor.
+    :param person_id: Numeric ID of a person who is a donor.
+    :param organization_id: Numeric ID of an organization that is a donor.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'getDonor',
+        donor_id=donor_id,
+        person_id=person_id,
+        organization_id=organization_id)
+
+
 def get_education_levels():
     """
     Returns all education levels (e.g. High School Diploma, Some College, etc).
@@ -1953,7 +2441,7 @@ def get_entries_for_account(
     """
     Returns ledger transactions for a particular account.
 
-    :param account_id: Numeric ID of the account.
+    :param account_id: The numeric ID of the account.
     :param start_date: The start date of the posted date filter (e.g. 2010-01-15).
     :param end_date: The end date of the posted date filter (e.g. 2012-12-30).
     :returns: String containing xml or an lxml element.
@@ -2086,6 +2574,16 @@ def get_financial_aid_years():
     return get_anonymous('getFinancialAidYears')
 
 
+def get_funds():
+    """
+    Returns all information related to donation funds configured for your institution.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getFunds')
+
+
 def get_grade_report(
         person_id: str = None,
         term_id: str = None,
@@ -2107,6 +2605,32 @@ def get_grade_report(
         term_id=term_id,
         program_id=program_id,
         include_locked_grades=include_locked_grades)
+
+
+def get_inquiries(
+        start_date: str = None,
+        end_date: str = None,
+        status: str = None,
+        program_id: str = None,
+        representative_id: str = None):
+    """
+    Returns all admissions inquiries matching the specified criteria.
+
+    :param start_date: The start date after which inquiries were received.
+    :param end_date: The end date before which inquiries were received.
+    :param status: The current status of the inquiries (e.g. WAITING_ON_US, WAITING_ON_THEM, CLOSED).
+    :param program_id: The numeric ID of the academic program associated with the inquiries.
+    :param representative_id: The numeric ID of the representative associated with the inquiries.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'getInquiries',
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+        program_id=program_id,
+        representative_id=representative_id)
 
 
 def get_inquiry(inquiry_id: str = None):
@@ -2175,21 +2699,6 @@ def get_ledger_accounts():
     return get_anonymous('getLedgerAccounts')
 
 
-def get_lesson_content(instance_id: str = None, lesson_id: str = None):
-    """
-    Returns the lessons attached to a course instance.
-
-    :param instance_id: The numeric ID of the course instance that contains the lesson.
-    :param lesson_id: The numeric ID of the lesson you're interested in.
-    :returns: String containing xml or an lxml element.
-    """
-
-    return get_anonymous(
-        'getLessonContent',
-        instance_id=instance_id,
-        lesson_id=lesson_id)
-
-
 def get_meal_plans():
     """
     Returns all information related to meal plans configured for the institution.
@@ -2224,6 +2733,27 @@ def get_news(offset: str = None, limit: str = None):
     return get_anonymous('getNews', offset=offset, limit=limit)
 
 
+def get_organization(organization_id: str = None):
+    """
+    Returns basic profile data about an organization: name, type, tags, and contact information (address, phone, email).
+
+    :param organization_id: The numeric ID of the organization.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getOrganization', organization_id=organization_id)
+
+
+def get_organization_types():
+    """
+    Returns organization types.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getOrganizationTypes')
+
+
 def get_payment(payment_id: str = None):
     """
     Returns all basic and associated information about a payment. This could include credit card information, electronic check information, invoice payments, and payment refunds.
@@ -2247,12 +2777,14 @@ def get_payment_plans():
 
 def get_pending_charges(
         term_id: str = None,
+        person_id: str = None,
         campus_id: str = None,
         type: str = None):
     """
     Returns all financial pending charges.
 
     :param term_id: Possible values: ALL (default), 0 (None), or any numeric term_id.
+    :param person_id: Numeric ID of the person you're interested in.
     :param campus_id: Possible values: ALL (default), 0 (None), or any numeric campus_id.
     :param type: Possible values: ALL (default), TUITION, FEE, ROOM_PLAN, MEAL_PLAN, or BOOKSTORE.
     :returns: String containing xml or an lxml element.
@@ -2262,15 +2794,20 @@ def get_pending_charges(
         'getPendingCharges',
         root_element='pending_charge',
         term_id=term_id,
+        person_id=person_id,
         campus_id=campus_id,
         type=type)
 
 
-def get_person(person_id: str = None, return_image_data: str = None):
+def get_person(
+        person_id: str = None,
+        student_id: str = None,
+        return_image_data: str = None):
     """
     Returns basic profile data about a person: name, age, gender, tags, and contact information (address, phone, email).
 
     :param person_id: The numeric ID of the person.
+    :param student_id: The student ID of the person.
     :param return_image_data: Boolean. Returning binary image data will result in slower response times. Defaults to false.
     :returns: String containing xml or an lxml element.
     """
@@ -2278,6 +2815,7 @@ def get_person(person_id: str = None, return_image_data: str = None):
     return get_anonymous(
         'getPerson',
         person_id=person_id,
+        student_id=student_id,
         return_image_data=return_image_data)
 
 
@@ -2334,6 +2872,17 @@ def get_person_relationships(person_id: str = None):
     """
 
     return get_anonymous('getPersonRelationships', person_id=person_id)
+
+
+def get_person_s_i_n(person_id: str = None):
+    """
+    Gets the social insurance number for a particular person.
+
+    :param person_id: The numeric ID of the person you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getPersonSIN', person_id=person_id)
 
 
 def get_person_s_s_n(person_id: str = None):
@@ -2434,7 +2983,7 @@ def get_role_members(
     """
     Returns members of a particular role.
 
-    :param roleID: Numeric ID of the role.
+    :param roleID: The numeric ID of the role.
     :param roleName: Name of the role.
     :param status: Possible values: ACTIVE (default), INACTIVE, and ALL.
     :returns: String containing xml or an lxml element.
@@ -2485,8 +3034,8 @@ def get_student_assignment_submissions(
     """
     Returns assignment submissions for a particular assignment and person.
 
-    :param assignment_id: Numeric ID of the assignment.
-    :param person_id: Numeric ID of the person.
+    :param assignment_id: The numeric ID of the assignment.
+    :param person_id: The numeric ID of the person.
     :returns: String containing xml or an lxml element.
     """
 
@@ -2549,7 +3098,7 @@ def get_student_info(person_id: str = None, return_image_data: str = None):
 
 def get_student_meal_plan(person_id: str = None, academic_term_id: str = None):
     """
-    Returns the term meal plan information from a person.
+    Returns a student's meal plan information.
 
     :param person_id: The numeric ID of the person.
     :param academic_term_id: The numeric ID of the academic term you're interested in.
@@ -2575,7 +3124,7 @@ def get_student_programs(person_id: str = None):
 
 def get_student_room_plan(person_id: str = None, academic_term_id: str = None):
     """
-    Returns the term room plan information from a person.
+    Returns a student's room plan information.
 
     :param person_id: The numeric ID of the person.
     :param academic_term_id: The numeric ID of the academic term you're interested in.
@@ -2609,8 +3158,8 @@ def get_tagged_people(tagID: str = None, tagName: str = None):
     """
     Returns people tagged with a particular tag.
 
-    :param tagID: Numeric ID of the tag.
-    :param tagName: Name of the tag.
+    :param tagID: The numeric ID of the tag.
+    :param tagName: The name of the tag.
     :returns: String containing xml or an lxml element.
     """
 
@@ -2659,15 +3208,19 @@ def get_term_course_instances(term_id: str = None, finalized: str = None):
         finalized=finalized)
 
 
-def get_term_enrollment(term_id: str = None):
+def get_term_enrollment(term_id: str = None, person_id: str = None):
     """
     Returns term enrollment for a particular academic term.
 
-    :param term_id: Numeric ID of the academic term.
+    :param term_id: The numeric ID of the academic term.
+    :param person_id: Numeric ID of the person you're interested in.
     :returns: String containing xml or an lxml element.
     """
 
-    return get_anonymous('getTermEnrollment', term_id=term_id)
+    return get_anonymous(
+        'getTermEnrollment',
+        term_id=term_id,
+        person_id=person_id)
 
 
 def get_term_students(
@@ -2678,7 +3231,7 @@ def get_term_students(
     """
     Returns term students.
 
-    :param term_id: Numeric ID of the term you're interested in. Defaults to the current academic term_id.
+    :param term_id: The numeric ID of the term you're interested in. Defaults to the current academic term_id.
     :param program_id: Possible values: ALL (default), NONE, or any numeric program_id.
     :param campus_id: Possible values: ALL (default), 0 (None), or any numeric campus_id.
     :param return_image_data: Boolean. Returning binary image data will result in slower response times. Defaults to false.
@@ -2761,6 +3314,19 @@ def get_transcript(
         include_course_desciptions=include_course_desciptions)
 
 
+def get_transfer_credit_program_grade_options(program_id: str = None):
+    """
+    Returns transfer credit program grade options.
+
+    :param program_id: The numeric ID of the program you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'getTransferCreditProgramGradeOptions',
+        program_id=program_id)
+
+
 def get_tuition_schedules():
     """
     Returns all information related to tuition schedules and brackets configured for the institution.
@@ -2836,7 +3402,8 @@ def invoice_pending_charges(
         person_id: str = None,
         academic_term_id: str = None,
         due_date: str = None,
-        posted_date: str = None):
+        posted_date: str = None,
+        fee_id: str = None):
     """
     Creates an invoice based from pending charges associate with a particular person.
 
@@ -2844,6 +3411,7 @@ def invoice_pending_charges(
     :param academic_term_id: The academic term ID that the pending charges are attached to. This is optional because some pending charges may not be attached to an academic term.
     :param due_date: The date that the invoice is due. Defaults to your specified due date setting (if set), otherwise the defaults to the academic term start date (if an academic_term_id is passed in and the academic term's start date is in the future), otherwise the default is 30 days in the future.
     :param posted_date: The transaction's posted date. Defaults to the current date.
+    :param fee_id: The numeric ID of a particular fee you're interested in.
     :returns: String containing xml or an lxml element.
     """
 
@@ -2852,7 +3420,48 @@ def invoice_pending_charges(
         person_id=person_id,
         academic_term_id=academic_term_id,
         due_date=due_date,
-        posted_date=posted_date)
+        posted_date=posted_date,
+        fee_id=fee_id)
+
+
+def link_application_to_person(
+        application_id: str = None,
+        person_id: str = None):
+    """
+    Links an application to a person.
+
+    :param application_id: Numeric ID of the application.
+    :param person_id: Numeric ID of the person.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'linkApplicationToPerson',
+        application_id=application_id,
+        person_id=person_id)
+
+
+def link_donation(
+        donation_id: str = None,
+        link_type: str = None,
+        person_id: str = None,
+        organization_id: str = None):
+    """
+    Links a donation to a person or organization as that donation's donor or soft credit.
+
+    :param donation_id: The numeric ID of the donation
+    :param link_type: DONOR or SOFT_CREDIT
+    :param person_id: The numeric ID of the person you wish to link to this donation
+    :param organization_id: The numeric ID of the organization you wish to link to this donation
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'linkDonation',
+        donation_id=donation_id,
+        link_type=link_type,
+        person_id=person_id,
+        organization_id=organization_id)
 
 
 def post_financial_aid_disbursement(
@@ -2876,20 +3485,20 @@ def post_financial_aid_disbursement(
 
 
 def remove_advisor_from_student(
-        advisor_id: str = None,
-        student_id: str = None):
+        advisor_person_id: str = None,
+        student_person_id: str = None):
     """
     Removes an advisor from a student.
 
-    :param advisor_id: The numeric ID of the advisor you're interested in.
-    :param student_id: The numeric ID of the student you're interested in.
+    :param advisor_person_id: The numeric person ID of the advisor you're interested in.
+    :param student_person_id: The numeric person ID of the student you're interested in.
     :returns: String containing xml or an lxml element.
     """
 
     return get_anonymous(
         'removeAdvisorFromStudent',
-        advisor_id=advisor_id,
-        student_id=student_id)
+        advisor_person_id=advisor_person_id,
+        student_person_id=student_person_id)
 
 
 def remove_default_tuition_schedule_from_student(
@@ -2913,7 +3522,7 @@ def remove_role(person_id: str = None, role_id: str = None):
     """
     Removes a role from a person.
 
-    :param person_id: Numeric ID of the person you're interested in.
+    :param person_id: The numeric ID of the person you're interested in.
     :param role_id: The numeric ID of the role you want to remove.
     :returns: String containing xml or an lxml element.
     """
@@ -2921,12 +3530,17 @@ def remove_role(person_id: str = None, role_id: str = None):
     return get_anonymous('removeRole', person_id=person_id, role_id=role_id)
 
 
-def remove_tag(person_id: str = None, tag_id: str = None, tag: str = None):
+def remove_tag(
+        person_id: str = None,
+        organization_id: str = None,
+        tag_id: str = None,
+        tag: str = None):
     """
     Removes a tag from a particular person.
 
-    :param person_id: Numeric ID of the person whose tag should be removed.
-    :param tag_id: Numeric ID of the tag.
+    :param person_id: The numeric ID of the person whose tag should be removed.
+    :param organization_id: The numeric ID of the organization whose tag should be removed.
+    :param tag_id: The numeric ID of the tag.
     :param tag: The actual tag you want to be removed (e.g. "Do not call", or "Good reference").
     :returns: String containing xml or an lxml element.
     """
@@ -2934,6 +3548,7 @@ def remove_tag(person_id: str = None, tag_id: str = None, tag: str = None):
     return get_anonymous(
         'removeTag',
         person_id=person_id,
+        organization_id=organization_id,
         tag_id=tag_id,
         tag=tag)
 
@@ -2962,7 +3577,7 @@ def remove_user(person_id: str = None):
     """
     Removes the user account from a person.
 
-    :param person_id: Numeric ID of the person whose user account will be removed.
+    :param person_id: The numeric ID of the person whose user account will be removed.
     :returns: String containing xml or an lxml element.
     """
 
@@ -2997,6 +3612,21 @@ def resubscribe_email_address(email_address: str = None):
         email_address=email_address)
 
 
+def search_organizations(search_term: str = None, limit: str = None):
+    """
+    Looks up organizations by name & location.
+
+    :param search_term: e.g. "College of Nursing" or "Chicago, IL".
+    :param limit: The maximum number of matches you'd like returned - defaults to 10, maximum is 50.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'searchOrganizations',
+        search_term=search_term,
+        limit=limit)
+
+
 def search_people(search_term: str = None, limit: str = None):
     """
     Looks up people by name, email, phone number, etc.
@@ -3026,7 +3656,7 @@ def set_application_field(
     """
     Sets a value for a particular application field.
 
-    :param application_field_id: Numeric ID of the application field you're interested in.
+    :param application_field_id: The numeric ID of the application field you're interested in.
     :param value: The value for this field.
     :param reference_email: The email address that should receive an online reference invitation.
     :param reference_message: A personal message to the recipient of the online reference invitation.
@@ -3038,7 +3668,7 @@ def set_application_field(
     :param hispanic_latino: Boolean.
     :param race_ids: An array of race IDs.
     :param date_taken: The date a standardized test was taken.
-    :param total_score: The total score for a statndardized test.
+    :param total_score: The total score for a standardized test.
     :returns: String containing xml or an lxml element.
     """
 
@@ -3060,16 +3690,18 @@ def set_application_field(
 
 
 def set_custom_field(
-        person_id: str = None,
         custom_field_id: str = None,
+        person_id: str = None,
+        owner_id: str = None,
         term_id: str = None,
         value: str = None,
         option_index: str = None):
     """
-    Sets a custom field value for a particular person.
+    Sets a custom field value for a particular person, organization, or donation.
 
-    :param person_id: The numeric ID of the person you're interested in.
     :param custom_field_id: The numeric ID of the custom field you're interested in.
+    :param person_id: The numeric ID of the person you're interested in.
+    :param owner_id: The numeric ID of object you're interested in, if they are not a person.
     :param term_id: The numeric ID of the term you're interested in.
     :param value: The value for this field.
     :param option_index: For RADIOs and SELECTs, you can pass in the index of the selected option.
@@ -3078,8 +3710,9 @@ def set_custom_field(
 
     return get_anonymous(
         'setCustomField',
-        person_id=person_id,
         custom_field_id=custom_field_id,
+        person_id=person_id,
+        owner_id=owner_id,
         term_id=term_id,
         value=value,
         option_index=option_index)
@@ -3097,7 +3730,7 @@ def set_lead_info(
     """
     Sets information about an admissions lead.
 
-    :param person_id: Numeric ID of the person whose lead information you'd like to change.
+    :param person_id: The numeric ID of the person whose lead information you'd like to change.
     :param status: PROSPECT, INQUIRY, APPLICATION_STARTED, APPLICATION_COMPLETED, ACCEPTED, CONFIRMED, ENROLLED
     :param term_id: The numeric ID of the term the school hopes the lead will attend.
     :param source_id: The numeric ID of the source this lead to which this lead should be attributed.
@@ -3248,6 +3881,18 @@ def set_person_race_ethnicity(
         race_ids=race_ids)
 
 
+def set_person_s_i_n(person_id: str = None, sin: str = None):
+    """
+    Sets the social insurance number for a particular person.
+
+    :param person_id: The numeric ID of the person you're interested in.
+    :param sin: The social insurance number for the person.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('setPersonSIN', person_id=person_id, sin=sin)
+
+
 def set_person_s_s_n(person_id: str = None, ssn: str = None):
     """
     Sets the social security number for a particular person.
@@ -3261,7 +3906,7 @@ def set_person_s_s_n(person_id: str = None, ssn: str = None):
 
 
 def set_student_assignment_grade(
-        instance_id: str = None,
+        course_offering_id: str = None,
         assignment_id: str = None,
         person_id: str = None,
         grade: str = None,
@@ -3269,7 +3914,7 @@ def set_student_assignment_grade(
     """
     Sets an assignment grade for a particular student.
 
-    :param instance_id: The numeric ID of the course instance you're interested in.
+    :param course_offering_id: The numeric ID of the course offering you're interested in.
     :param assignment_id: The numeric ID of the assignment you're interested in.
     :param person_id: The numeric ID of the person you're interested in.
     :param grade: The assignment grade for the student.
@@ -3279,7 +3924,7 @@ def set_student_assignment_grade(
 
     return get_anonymous(
         'setStudentAssignmentGrade',
-        instance_id=instance_id,
+        course_offering_id=course_offering_id,
         assignment_id=assignment_id,
         person_id=person_id,
         grade=grade,
@@ -3307,13 +3952,13 @@ def set_student_entrance_term(
 
 
 def set_student_final_grade(
-        instance_id: str = None,
+        course_offering_id: str = None,
         person_id: str = None,
         grade: str = None):
     """
     Sets the final grade for a particular student in a particular course instance.
 
-    :param instance_id: The numeric ID of the course instance you're interested in.
+    :param course_offering_id: The numeric ID of the course offering you're interested in.
     :param person_id: The numeric ID of the person you're interested in.
     :param grade: The final grade for the student.
     :returns: String containing xml or an lxml element.
@@ -3321,7 +3966,7 @@ def set_student_final_grade(
 
     return get_anonymous(
         'setStudentFinalGrade',
-        instance_id=instance_id,
+        course_offering_id=course_offering_id,
         person_id=person_id,
         grade=grade)
 
@@ -3330,7 +3975,7 @@ def set_student_i_d(person_id: str = None, student_id: str = None):
     """
     Sets a student's ID
 
-    :param person_id: Numeric ID of the person whose student ID you'd like to change.
+    :param person_id: The numeric ID of the person whose student ID you'd like to change.
     :param student_id: The new student ID
     :returns: String containing xml or an lxml element.
     """
@@ -3339,6 +3984,52 @@ def set_student_i_d(person_id: str = None, student_id: str = None):
         'setStudentID',
         person_id=person_id,
         student_id=student_id)
+
+
+def set_student_meal_plan(
+        person_id: str = None,
+        academic_term_id: str = None,
+        meal_plan_id: str = None):
+    """
+    Sets a student's meal plan information.
+
+    :param person_id: The numeric ID of the person.
+    :param academic_term_id: The numeric ID of the academic term you're interested in.
+    :param meal_plan_id: The numeric ID of the meal plan you're interested in.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'setStudentMealPlan',
+        person_id=person_id,
+        academic_term_id=academic_term_id,
+        meal_plan_id=meal_plan_id)
+
+
+def set_student_room_plan(
+        person_id: str = None,
+        academic_term_id: str = None,
+        room_plan_id: str = None,
+        room_id: str = None,
+        capacity_used: str = None):
+    """
+    Sets a student's room plan information.
+
+    :param person_id: The numeric ID of the person.
+    :param academic_term_id: The numeric ID of the academic term you're interested in.
+    :param room_plan_id: The numeric ID of the room plan you're interested in.
+    :param room_id: The numeric ID of the room you're interested in.
+    :param capacity_used:  
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'setStudentRoomPlan',
+        person_id=person_id,
+        academic_term_id=academic_term_id,
+        room_plan_id=room_plan_id,
+        room_id=room_id,
+        capacity_used=capacity_used)
 
 
 def set_todo_completed(todo_id: str = None, completed: str = None):
@@ -3360,7 +4051,7 @@ def submit_application(application_id: str = None):
     """
     Submits an application.
 
-    :param application_id: Numeric ID of the application you're interested in.
+    :param application_id: The numeric ID of the application you're interested in.
     :returns: String containing xml or an lxml element.
     """
 
@@ -3371,11 +4062,42 @@ def unblock_user(person_id: str = None):
     """
     Used to unblock a particular user account.
 
-    :param person_id: Numeric ID of the person whose user account will be unblocked.
+    :param person_id: The numeric ID of the person whose user account will be unblocked.
     :returns: String containing xml or an lxml element.
     """
 
     return get_anonymous('unblockUser', person_id=person_id)
+
+
+def unlink_application(application_id: str = None):
+    """
+    Unlinks a person from an application.
+
+    :param application_id: Numeric ID of the application.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('unlinkApplication', application_id=application_id)
+
+
+def unlink_donation(
+        donation_id: str = None,
+        link_type: str = None,
+        soft_credit_donor_id: str = None):
+    """
+    Removes the donor link or soft credits from a donation.
+
+    :param donation_id: The numeric ID of the donation
+    :param link_type: DONOR or SOFT_CREDIT
+    :param soft_credit_donor_id: Numeric donor ID of the soft credit you wish to remove from this donation
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'unlinkDonation',
+        donation_id=donation_id,
+        link_type=link_type,
+        soft_credit_donor_id=soft_credit_donor_id)
 
 
 def unsubscribe_email_address(email_address: str = None):
@@ -3405,12 +4127,12 @@ def update_address(
     """
     Updates an address.
 
-    :param addressid: Numeric ID of the address.
+    :param addressid: The numeric ID of the address.
     :param street: e.g. 777 Magnolia Ln
     :param city: e.g. Moscow
     :param state: e.g. ID
     :param postal: e.g. 83843
-    :param country: e.g. USA
+    :param country: e.g. US, CA, etc.
     :param type: Person addresses: HOME, WORK, BILLING, SCHOOL, SHIPPING, OTHER
     :param primary: Boolean. Use if you want to mark the address as primary or not primary.
     :param old: Boolean. Use if you want to mark the address as old or not old.
@@ -3438,7 +4160,7 @@ def update_application_field_status(
     """
     Updates an application field's status.
 
-    :param application_field_id: Numeric ID of the application field you're interested in.
+    :param application_field_id: The numeric ID of the application field you're interested in.
     :param status: IN_PROGRESS, SUBMITTED, ACCEPTED, or REJECTED
     :returns: String containing xml or an lxml element.
     """
@@ -3459,7 +4181,7 @@ def update_application_status(
     """
     Updates an application's status.
 
-    :param application_id: Numeric ID of the application you're interested in.
+    :param application_id: The numeric ID of the application you're interested in.
     :param status: IN_PROGRESS, SUBMITTED, PENDING_DECISION, ACCEPTED, DECLINED, WITHDRAWN, DEFERRED, or WAITLISTED
     :param provisional: Boolean. Only applies when the status=ACCEPTED. Defaults to false.
     :param provisional_comment: Only applies when the status=ACCEPTED.
@@ -3638,7 +4360,7 @@ def update_email_address(
     """
     Updates an email address.
 
-    :param emailid: Numeric ID of the email address.
+    :param emailid: The numeric ID of the email address.
     :param email_address: e.g. bob@example.com
     :param type: Person email addresses: HOME, WORK, SCHOOL, OTHER
     :param primary: Boolean. Use if you want to mark the email address as primary or not primary.
@@ -3682,7 +4404,7 @@ def update_phone_number(
     """
     Updates a phone number.
 
-    :param phoneid: Numeric ID of the phone number.
+    :param phoneid: The numeric ID of the phone number.
     :param phone_number: e.g. 1-800-888-8888
     :param type: Person phone numbers: HOME, WORK, MOBILE, SCHOOL, FAX, OTHER
     :param primary: Boolean. Use if you want to mark the phone number as primary or not primary.
@@ -3706,14 +4428,16 @@ def update_student_attendance(
         meetingID: str = None,
         personID: str = None,
         status: str = None,
+        note: str = None,
         keep_best_status: str = None):
     """
     Update a student's attendance.
 
     :param instanceID: The numeric ID of the course instance you're interested in.
     :param meetingID: The numeric ID of the meeting.
-    :param personID: Numeric ID of the person whose attendance will be updated.
+    :param personID: The numeric ID of the person whose attendance will be updated.
     :param status: PRESENT, ABSENT, TARDY, or EXCUSED
+    :param note: The text content of the note.
     :param keep_best_status: Boolean. Defaults to false.
     :returns: String containing xml or an lxml element.
     """
@@ -3724,6 +4448,7 @@ def update_student_attendance(
         meetingID=meetingID,
         personID=personID,
         status=status,
+        note=note,
         keep_best_status=keep_best_status)
 
 
@@ -3748,6 +4473,21 @@ def update_student_term_tuition_schedule_bracket(
         academic_term_id=academic_term_id,
         tuition_schedule_id=tuition_schedule_id,
         tuition_schedule_bracket_id=tuition_schedule_bracket_id)
+
+
+def upload_assignment_submission(assignment_id: str = None, file: str = None):
+    """
+    Uploads a file to an assignment for the current user.
+
+    :param assignment_id: The numeric ID of the assignment.
+    :param file: File uploaded the via the HTTP POST method.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'uploadAssignmentSubmission',
+        assignment_id=assignment_id,
+        file=file)
 
 
 def upload_file(

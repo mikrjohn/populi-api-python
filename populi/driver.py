@@ -76,7 +76,7 @@ class driver(object):
         return xml.find('access_key').text
 
     @staticmethod
-    def call_populi(parameters, skip_access_key=False):
+    def call_populi(parameters, skip_access_key=False, raw_data=False):
         retry = 1
         while True:
             try:
@@ -89,6 +89,8 @@ class driver(object):
                         del parameters[p]
 
                 b = request(driver.endpoint, parameters)
+                if raw_data:
+                    return b, None
 
                 xml = etree.parse(b).getroot()
 
@@ -178,7 +180,7 @@ def initialize(
         access_key=access_key)
 
 
-def get_anonymous(task, **kwargs):
+def get_anonymous(task, raw_data=False, **kwargs):
     new_kwargs = {}
 
     for argc, argv in kwargs.items():
@@ -189,14 +191,17 @@ def get_anonymous(task, **kwargs):
 
     logger.debug("Executing %s" % task)
 
-    (result, xml) = driver.call_populi(kwargs).getvalue().decode('UTF-8')
+    (result, xml) = driver.call_populi(new_kwargs, raw_data=raw_data)
+
+    if xml is None:
+        return result.read()
 
     if use_lxml:
         if xml.tag == 'code':
             raise exceptions.OtherError(xml.text)
         return xml
     else:
-        return result
+        return result.getvalue().decode('UTF-8')
 
 
 def get_all_anonymous(task, root_element, **kwargs):

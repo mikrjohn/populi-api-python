@@ -19,6 +19,9 @@ root_elements = {
     'getTodos': 'todo',
     'getVoidedTransactions': 'transaction',
 }
+
+raw_elements = {'downloadFile', 'downloadBackup', 'downloadStudentSchedule'}
+
 imports = "from .driver import initialize, get_anonymous, get_all_anonymous\n\n\n"
 
 
@@ -40,8 +43,10 @@ class Command(object):
     """
     
     return get_{}anonymous('{}'{})'''
-
         passing = ", ".join(["{}={}".format(p.field, p.field) for p in self.parameters if p.field != 'page'])
+
+        if self.name in raw_elements:
+            passing = f"raw_data=True, {passing}" if passing else "raw_data=True"
 
         if self.paging():
             if passing:

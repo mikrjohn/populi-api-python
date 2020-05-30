@@ -79,6 +79,19 @@ class TestDriver(unittest.TestCase):
             self.assertEqual('Malformed access key', str(e))
 
     @patch('populi.driver.request')
+    def test_call_populi_for_raw_data(self, mock_request):
+        bio = BytesIO()
+        bio.write(b'HELLO WORLD')
+        bio.seek(0)
+        mock_request.return_value = bio
+        driver.driver.access_key = 'override'
+        driver.driver.endpoint = 'endpoint'
+
+        raw_data, other = driver.driver.call_populi({'a': 'b'}, raw_data=True)
+        self.assertEqual(b'HELLO WORLD', raw_data.read())
+        self.assertEqual(None, other)
+
+    @patch('populi.driver.request')
     def test_call_populi_raises_unknown_task(self, mock_request):
         bio = BytesIO()
         bio.write(b'<?xml version="1.0" encoding="ISO-8859-1"?><error><code>UNKNOWN_TASK</code><message>Unknown Task</message></error>')
