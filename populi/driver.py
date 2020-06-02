@@ -4,7 +4,7 @@ import lxml.etree as etree
 from io import BytesIO
 import time
 from urllib.parse import urlencode
-from os import environ
+from os import environ, path
 
 from . import exceptions
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 request_count = 0
 
 
-def request(endpoint, parameters):
+def request(endpoint, parameters, curl_options=[]):
     global request_count
 
     request_count += 1
@@ -24,6 +24,10 @@ def request(endpoint, parameters):
     c.setopt(pycurl.POST, 1)
     c.setopt(pycurl.POSTFIELDS, urlencode(parameters, True))
     c.setopt(pycurl.WRITEDATA, b)
+
+    for opt_name, opt_value in curl_options:
+        c.setopt(opt_name, opt_value)
+
     c.perform()
 
     response_code = c.getinfo(pycurl.RESPONSE_CODE)
@@ -45,12 +49,14 @@ class TooManyRequests(exceptions.TooManyRequests):
 class driver(object):
     endpoint = None
     access_key = None
+    curl_options = None
 
     @staticmethod
-    def initialize(endpoint: str = "", username: str = "", password: str = "", access_key: str = None):
+    def initialize(endpoint: str = "", username: str = "", password: str = "", access_key: str = None, curl_options: list = []):
 
         driver.endpoint = environ['populiEndpoint'] if endpoint == "" else endpoint
         driver.endpoint = driver.endpoint.strip('\n').replace('\"', '')
+        driver.curl_options = curl_options
 
         logger.info("Initializing Populi Driver")
 
@@ -88,7 +94,8 @@ class driver(object):
                         parameters[p+'[]'] = parameters[p]
                         del parameters[p]
 
-                b = request(driver.endpoint, parameters)
+                b = request(driver.endpoint, parameters, curl_options=driver.curl_options)
+
                 if raw_data:
                     return b, None
 
@@ -165,11 +172,12 @@ use_lxml = False
 
 
 def initialize(
-        endpoint="",
-        username="",
-        password="",
-        access_key=None,
-        asXML=False):
+        endpoint: str="",
+        username: str="",
+        password: str="",
+        access_key: str=None,
+        asXML: bool=False,
+        curl_options: (list, tuple)=[]):
     global use_lxml
     use_lxml = asXML
 
@@ -177,7 +185,8 @@ def initialize(
         endpoint=endpoint,
         username=username,
         password=password,
-        access_key=access_key)
+        access_key=access_key,
+        curl_options=curl_options)
 
 
 def get_anonymous(task, raw_data=False, **kwargs):
