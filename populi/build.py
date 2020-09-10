@@ -18,6 +18,7 @@ root_elements = {
     'getTaggedPeople': 'person',
     'getTodos': 'todo',
     'getVoidedTransactions': 'transaction',
+    'getOrganizations': 'organization',
 }
 
 raw_elements = {'downloadFile', 'downloadBackup', 'downloadStudentSchedule'}

@@ -137,6 +137,7 @@ def add_application(
         first_name: str = None,
         middle_name: str = None,
         last_name: str = None,
+        fee_status: str = None,
         email_address: str = None,
         start_date: str = None,
         representative_id: str = None,
@@ -159,6 +160,7 @@ def add_application(
     :param first_name: The first name of the applicant.
     :param middle_name: The middle name of the applicant.
     :param last_name: The last name of the applicant.
+    :param fee_status: UNPAID, PAID, or WAIVED. Defaults to UNPAID
     :param email_address: The email address of the applicant.
     :param start_date: The date this application was started (e.g. 2014-01-15). Defaults to the current date.
     :param representative_id: The numeric ID of the admissions representative who will be assigned to this application.
@@ -183,6 +185,7 @@ def add_application(
         first_name=first_name,
         middle_name=middle_name,
         last_name=last_name,
+        fee_status=fee_status,
         email_address=email_address,
         start_date=start_date,
         representative_id=representative_id,
@@ -282,6 +285,23 @@ def add_communication_plan_to_person(
         start_date=start_date)
 
 
+def add_course_bulletin_board_post(
+        course_offering_id: str = None,
+        post: str = None):
+    """
+    Adds a bulletin board post to a particular course offering.
+
+    :param course_offering_id: The numeric ID of the course offering you're interested in.
+    :param post: The post content.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addCourseBulletinBoardPost',
+        course_offering_id=course_offering_id,
+        post=post)
+
+
 def add_course_instance_assignment(
         instance_id: str = None,
         name: str = None,
@@ -292,6 +312,7 @@ def add_course_instance_assignment(
         points: str = None,
         extra_credit: str = None,
         group_id: str = None,
+        published: str = None,
         time_due: str = None,
         visible_to_students_before_due: str = None,
         availability: str = None,
@@ -323,11 +344,12 @@ def add_course_instance_assignment(
     :param points: The number of points that the assignment is worth (the default is 0).
     :param extra_credit: Boolean. Defaults to false.
     :param group_id: The assignment group ID this assignment belongs to (the default is 0 which is the built-in "Other" group).
+    :param published: Boolean. Defaults to false.
     :param time_due: When the assignment is due (e.g. 2017-06-30 23:59:59 - must be in the course instance's timezone).
     :param visible_to_students_before_due: When the passed in type is TEST this sets whether or not the test is visible before it's available (the default is 1).
     :param availability: FROM, AFTER, BEFORE, or ALWAYS (the default is FROM). If the value is FROM and both start_window and end_window are empty then the test will not be available.
-    :param start_window: When the test availability starts. Only used when the availability parameter is FROM or AFTER.
-    :param end_window: When the test availability ends. Only used when the availability parameter is FROM or BEFORE.
+    :param start_window: When the test availability starts (e.g. 2017-06-01 00:00:00 - must be in the course instance's timezone). Only used when the availability parameter is FROM or AFTER.
+    :param end_window: When the test availability ends (e.g. 2017-06-30 23:59:59 - must be in the course instance's timezone). Only used when the availability parameter is FROM or BEFORE.
     :param time_limit: The time limit in minutes (the default is 0 which is "No time limit").
     :param retake_policy: NO_RETAKES (no retakes - the default), KEEP_HIGHEST (keep highest score), KEEP_LAST (keep most recent score), AVERAGE (average all scores).
     :param retakes: The number of retakes allowed (only used when the retake_policy is not NO_RETAKES - the default is 0).
@@ -356,6 +378,7 @@ def add_course_instance_assignment(
         points=points,
         extra_credit=extra_credit,
         group_id=group_id,
+        published=published,
         time_due=time_due,
         visible_to_students_before_due=visible_to_students_before_due,
         availability=availability,
@@ -574,8 +597,8 @@ def add_field_of_study(
     :param organization_id: The numeric ID of the organization.
     :param person_id: The numeric ID of the person.
     :param name: The name of the field of study.
-    :param start_date: Format should be a date like "2020-09-05".
-    :param end_date: Format should be a date like "2024-05-07".
+    :param start_date: Format should be a date. e.g. "2020-09-05".
+    :param end_date: Format should be a date. e.g. "2024-05-07".
     :param is_private: Boolean. Defaults to the "Make relationships between people and organizations private by default" security setting.
     :param can_show_on_transcript: Boolean. Defaults to true.
     :returns: String containing xml or an lxml element.
@@ -645,7 +668,7 @@ def add_financial_aid_disbursement(
     :param academic_term_id: The numeric ID of an academic term.
     :param scheduled_date: The anticipated disbursement date in the format '2012-10-10'.
     :param amount: The net amount of this disbursement.
-    :param gross_amount: The gross net amount of this disbursement.
+    :param gross_amount: The gross net amount of this disbursement (defaults to the net amount).
     :returns: String containing xml or an lxml element.
     """
 
@@ -766,6 +789,56 @@ def add_organization(name: str = None, type_id: str = None):
     """
 
     return get_anonymous('addOrganization', name=name, type_id=type_id)
+
+
+def add_organization_to_person(
+        organization_id: str = None,
+        person_id: str = None,
+        type: str = None,
+        title: str = None,
+        start_date: str = None,
+        end_date: str = None,
+        is_primary: str = None,
+        is_private: str = None,
+        occupation_id: str = None,
+        full_time: str = None,
+        weekly_hours: str = None,
+        salary: str = None,
+        can_show_on_transcript: str = None):
+    """
+    Adds an organization to a person.
+
+    :param organization_id: The numeric ID of the organization.
+    :param person_id: The numeric ID of the person.
+    :param type: MEMBER, EMPLOYMENT, or EDUCATION.
+    :param title: The person's title at the organization.
+    :param start_date: Format should be a date. e.g. "2020-09-05".
+    :param end_date: Format should be a date. e.g. "2024-05-07".
+    :param is_primary: Boolean.
+    :param is_private: Boolean. Defaults to the "Make relationships between people and organizations private by default" security setting.
+    :param occupation_id: The numeric ID of the occupation. See getOccupations. Only used when type = EMPLOYMENT.
+    :param full_time: Boolean. Only used when type = EMPLOYMENT.
+    :param weekly_hours: Only used when full_time = 0 and type = EMPLOYMENT.
+    :param salary: Only used when type = EMPLOYMENT.
+    :param can_show_on_transcript: Boolean. Defaults to true. Only used when type = EDUCATION.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'addOrganizationToPerson',
+        organization_id=organization_id,
+        person_id=person_id,
+        type=type,
+        title=title,
+        start_date=start_date,
+        end_date=end_date,
+        is_primary=is_primary,
+        is_private=is_private,
+        occupation_id=occupation_id,
+        full_time=full_time,
+        weekly_hours=weekly_hours,
+        salary=salary,
+        can_show_on_transcript=can_show_on_transcript)
 
 
 def add_payment(
@@ -1109,7 +1182,7 @@ def add_transfer_credit(
     :param course_group_id: The numeric ID of the course group.
     :param description:  
     :param status: PENDING (default), APPROVED, or REJECTED
-    :param effective_date: Format should be a date like "2020-09-05".
+    :param effective_date: Format should be a date. e.g. "2020-09-05".
     :param applies_to_all_programs: Boolean. Defaults to true.
     :returns: String containing xml or an lxml element.
     """
@@ -1488,6 +1561,17 @@ def delete_person_hometown(person_id: str = None):
     """
 
     return get_anonymous('deletePersonHometown', person_id=person_id)
+
+
+def delete_person_organization(id: str = None):
+    """
+    Deletes a person organization record.
+
+    :param id: The numeric ID of the person_organization record. See getPersonOrganization.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('deletePersonOrganization', id=id)
 
 
 def delete_person_race_ethnicity(person_id: str = None):
@@ -2195,19 +2279,22 @@ def get_course_instance_lessons(instance_id: str = None):
 
 def get_course_instance_meeting_attendance(
         instanceID: str = None,
-        meetingID: str = None):
+        meetingID: str = None,
+        return_students_with_no_attendance_taken: str = None):
     """
     Gets attendance for a course instance meeting.
 
     :param instanceID: The numeric ID of the course instance you're interested in.
     :param meetingID: The numeric ID of the meeting.
+    :param return_students_with_no_attendance_taken: Boolean. Defaults to false.
     :returns: String containing xml or an lxml element.
     """
 
     return get_anonymous(
         'getCourseInstanceMeetingAttendance',
         instanceID=instanceID,
-        meetingID=meetingID)
+        meetingID=meetingID,
+        return_students_with_no_attendance_taken=return_students_with_no_attendance_taken)
 
 
 def get_course_instance_meetings(instanceID: str = None):
@@ -2681,7 +2768,7 @@ def get_invoices(
 
 def get_lead_sources():
     """
-    Returns all the lead sources you've set up in the Admissions module.
+    Returns all the lead sources you've set up in the Admissions settings.
 
     :returns: String containing xml or an lxml element.
     """
@@ -2733,6 +2820,16 @@ def get_news(offset: str = None, limit: str = None):
     return get_anonymous('getNews', offset=offset, limit=limit)
 
 
+def get_occupations():
+    """
+    Returns a list of occupations and their respective SOC codes.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getOccupations')
+
+
 def get_organization(organization_id: str = None):
     """
     Returns basic profile data about an organization: name, type, tags, and contact information (address, phone, email).
@@ -2752,6 +2849,16 @@ def get_organization_types():
     """
 
     return get_anonymous('getOrganizationTypes')
+
+
+def get_organizations():
+    """
+    Returns all organizations.
+
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_all_anonymous('getOrganizations', root_element='organization')
 
 
 def get_payment(payment_id: str = None):
@@ -2861,6 +2968,17 @@ def get_person_locks(person_id: str = None):
     """
 
     return get_anonymous('getPersonLocks', person_id=person_id)
+
+
+def get_person_organizations(person_id: str = None):
+    """
+    Returns organization records associated with a person.
+
+    :param person_id: The numeric ID of the person.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous('getPersonOrganizations', person_id=person_id)
 
 
 def get_person_relationships(person_id: str = None):
@@ -3289,7 +3407,7 @@ def get_transcript(
         program_id: str = None,
         official: str = None,
         recipient: str = None,
-        include_course_desciptions: str = None):
+        include_course_descriptions: str = None):
     """
     Returns the transcript for a particular student.
 
@@ -3299,7 +3417,7 @@ def get_transcript(
     :param program_id: The numeric ID of the student's program you wish to export a transcript for. When using a custom layout, this parameter is required.
     :param official: (Requires the "pdf" parameter to be set to true) Boolean. If set to true, the official transcript pdf content will be returned. Defaults to false.
     :param recipient: (Requires the "pdf" parameter to be set to true) String. The recipient who will be receiving this transcript.
-    :param include_course_desciptions: (Requires the "pdf" parameter to be set to true) Boolean. If set to true, course descriptions will be returned in the pdf content. Note: course descriptions will always be returned in the xml. The parameter has no effect on custom layouts. Defaults to false.
+    :param include_course_descriptions: (Requires the "pdf" parameter to be set to true) Boolean. If set to true, course descriptions will be returned in the pdf content. Note: course descriptions will always be returned in the xml. The parameter has no effect on custom layouts. Defaults to false.
     :returns: String containing xml or an lxml element.
     """
 
@@ -3311,7 +3429,7 @@ def get_transcript(
         program_id=program_id,
         official=official,
         recipient=recipient,
-        include_course_desciptions=include_course_desciptions)
+        include_course_descriptions=include_course_descriptions)
 
 
 def get_transfer_credit_program_grade_options(program_id: str = None):
@@ -4174,6 +4292,7 @@ def update_application_field_status(
 def update_application_status(
         application_id: str = None,
         status: str = None,
+        fee_status: str = None,
         provisional: str = None,
         provisional_comment: str = None,
         add_student_role: str = None,
@@ -4182,7 +4301,8 @@ def update_application_status(
     Updates an application's status.
 
     :param application_id: The numeric ID of the application you're interested in.
-    :param status: IN_PROGRESS, SUBMITTED, PENDING_DECISION, ACCEPTED, DECLINED, WITHDRAWN, DEFERRED, or WAITLISTED
+    :param status: IN_PROGRESS, SUBMITTED, PENDING_DECISION, ACCEPTED, DECLINED, WITHDRAWN, DEFERRED, or WAITLISTED.
+    :param fee_status: UNPAID, PAID, or WAIVED.
     :param provisional: Boolean. Only applies when the status=ACCEPTED. Defaults to false.
     :param provisional_comment: Only applies when the status=ACCEPTED.
     :param add_student_role: Boolean. Only applies when the status=ACCEPTED. Defaults to true.
@@ -4194,6 +4314,7 @@ def update_application_status(
         'updateApplicationStatus',
         application_id=application_id,
         status=status,
+        fee_status=fee_status,
         provisional=provisional,
         provisional_comment=provisional_comment,
         add_student_role=add_student_role,
@@ -4211,6 +4332,7 @@ def update_course_instance_assignment(
         points: str = None,
         extra_credit: str = None,
         group_id: str = None,
+        published: str = None,
         time_due: str = None,
         visible_to_students_before_due: str = None,
         availability: str = None,
@@ -4243,11 +4365,12 @@ def update_course_instance_assignment(
     :param points: The number of points that the assignment is worth.
     :param extra_credit: Boolean.
     :param group_id: The assignment group ID this assignment belongs to (group_id 0 is the built-in "Other" group).
+    :param published: Boolean.
     :param time_due: When the assignment is due (e.g. 2017-06-30 23:59:59 - must be in the course instance's timezone).
     :param visible_to_students_before_due: When the passed in type is TEST this sets whether or not the test is visible before it's available.
     :param availability: FROM, AFTER, BEFORE, or ALWAYS. If the value is FROM and both start_window and end_window are empty then the test will not be available.
-    :param start_window: When the test availability starts. Only used when the availability parameter is FROM or AFTER.
-    :param end_window: When the test availability ends. Only used when the availability parameter is FROM or BEFORE.
+    :param start_window: When the test availability starts (e.g. 2017-06-01 00:00:00 - must be in the course instance's timezone). Only used when the availability parameter is FROM or AFTER.
+    :param end_window: When the test availability ends (e.g. 2017-06-30 23:59:59 - must be in the course instance's timezone). Only used when the availability parameter is FROM or BEFORE.
     :param time_limit: The time limit in minutes (time_limit 0 means "No time limit").
     :param retake_policy: NO_RETAKES (no retakes), KEEP_HIGHEST (keep highest score), KEEP_LAST (keep most recent score), AVERAGE (average all scores).
     :param retakes: The number of retakes allowed (only used when the retake_policy is not NO_RETAKES).
@@ -4277,6 +4400,7 @@ def update_course_instance_assignment(
         points=points,
         extra_credit=extra_credit,
         group_id=group_id,
+        published=published,
         time_due=time_due,
         visible_to_students_before_due=visible_to_students_before_due,
         availability=availability,
@@ -4392,6 +4516,53 @@ def update_license_plate(person_id: str = None, license_plate: str = None):
         'updateLicensePlate',
         person_id=person_id,
         license_plate=license_plate)
+
+
+def update_person_organization(
+        id: str = None,
+        type: str = None,
+        title: str = None,
+        start_date: str = None,
+        end_date: str = None,
+        is_primary: str = None,
+        is_private: str = None,
+        occupation_id: str = None,
+        full_time: str = None,
+        weekly_hours: str = None,
+        salary: str = None,
+        can_show_on_transcript: str = None):
+    """
+    Updates a person organization record.
+
+    :param id: The numeric ID of the person_organization record. See getPersonOrganization.
+    :param type: MEMBER, EMPLOYMENT, or EDUCATION.
+    :param title: The person's title at the organization.
+    :param start_date: Format should be a date. e.g. "2020-09-05".
+    :param end_date: Format should be a date. e.g. "2024-05-07".
+    :param is_primary: Boolean.
+    :param is_private: Boolean. Defaults to the "Make relationships between people and organizations private by default" security setting.
+    :param occupation_id: The numeric ID of the occupation. See getOccupations. Only used when type = EMPLOYMENT.
+    :param full_time: Boolean. Only used when type = EMPLOYMENT.
+    :param weekly_hours: Only used when full_time = 0 and type = EMPLOYMENT.
+    :param salary: Only used when type = EMPLOYMENT.
+    :param can_show_on_transcript: Boolean. Defaults to true. Only used when type = EDUCATION.
+    :returns: String containing xml or an lxml element.
+    """
+
+    return get_anonymous(
+        'updatePersonOrganization',
+        id=id,
+        type=type,
+        title=title,
+        start_date=start_date,
+        end_date=end_date,
+        is_primary=is_primary,
+        is_private=is_private,
+        occupation_id=occupation_id,
+        full_time=full_time,
+        weekly_hours=weekly_hours,
+        salary=salary,
+        can_show_on_transcript=can_show_on_transcript)
 
 
 def update_phone_number(
@@ -4514,4 +4685,3 @@ def upload_file(
         custom_field_id=custom_field_id,
         term_id=term_id,
         role_ids=role_ids)
-
