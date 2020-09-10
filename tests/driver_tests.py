@@ -3,6 +3,8 @@ import unittest
 from unittest.mock import call, patch, MagicMock
 from io import BytesIO
 from urllib.parse import urlencode
+import lxml.etree as etree
+import os.path
 
 from populi import driver
 from populi import exceptions
@@ -201,6 +203,18 @@ class TestDriver(unittest.TestCase):
             self.assertTrue(False, 'Should have raised Other Error')
         except exceptions.OtherError as e:
             self.assertEqual('Unknown Task', str(e))
+
+    @patch('populi.driver.driver.call_populi')
+    def test_get_all_anonymous_returns_correct_encoding(self, mock_call_populi):
+        xml_file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                     "data/test.xml")
+        xml = etree.parse(xml_file_path).getroot()
+        mock_call_populi.return_value = (None, xml)
+        driver.initialize(endpoint='whatever', access_key='access_key', curl_options=[('a', 1), ('c', 3)])
+
+        result = driver.get_all_anonymous('task', 'transaction')
+
+        self.assertEqual(etree.tostring(xml, xml_declaration=True, encoding='UTF-8').decode('UTF-8'), result)
 
 
 if __name__ == '__main__':

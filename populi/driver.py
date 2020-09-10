@@ -163,7 +163,7 @@ class driver(object):
 
             kwargs['page'] += 1
 
-        xml_string = etree.tostring(master, xml_declaration=True, encoding="ISO-8859-1")
+        xml_string = etree.tostring(master, xml_declaration=True, encoding="UTF-8")
 
         return xml_string, master
 
