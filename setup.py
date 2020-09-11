@@ -1,11 +1,17 @@
 import setuptools
 
+"""
+Steps for publishing:
+1) increment version number
+2) $ python setup.py sdist
+3) $ twine upload dist/populi-mrobison-{version}.tar.gz
+"""
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="populi-mrobison",
-    version="0.0.7",
+    version="0.0.8",
     author="Mike Robison",
     author_email="mrobison@wts.edu",
     description="A module for interacting with the populi api.",
