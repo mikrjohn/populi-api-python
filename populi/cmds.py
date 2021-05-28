@@ -2766,6 +2766,46 @@ def get_invoices(
         status=status)
 
 
+def get_leads(
+        status: str = None,
+        program_id: str = None,
+        academic_term_id: str = None,
+        representative_id: str = None,
+        lead_source_id: str = None,
+        added_on_start_date: str = None,
+        added_on_end_date: str = None,
+        active: str = None,
+        page: str = None):
+    """
+    Returns all admissions leads matching the specified criteria.
+
+    :param status	PROSPECT, INQUIRY, APPLICATION_STARTED, APPLICATION_COMPLETED, ACCEPTED, CONFIRMED, or ENROLLED.
+    :param program_id	The numeric ID of the program associated with the leads.
+    :param academic_term_id	The numeric ID of the academic term associated with the leads.
+    :param representative_id	The numeric ID of the representative associated with the leads.
+    :param lead_source_id	The numeric ID of the lead source associated with the leads.
+    :param added_on_start_date	YYYY-MM-DD format.
+    :param added_on_end_date	YYYY-MM-DD format.
+    :param active	Boolean.
+    :param page	We limit the number of results returned (200), so which "page" would you like (e.g. page=1, page=2, page=3).
+            The "num_results" attribute (in the <response> element) indicates the total number of possible results (regardless of the limit or the page parameter).
+    
+    You must have the Admissions, Admissions Admin, Registrar, or Academic Admin role to call this task.
+    """
+
+    return get_anonymous(
+        'getLeads',
+        status=status,
+        program_id=program_id,
+        academic_term_id=academic_term_id,
+        representative_id=representative_id,
+        lead_source_id=lead_source_id,
+        added_on_start_date=added_on_start_date,
+        added_on_end_date=added_on_end_date,
+        active=active,
+        page=page)
+
+
 def get_lead_sources():
     """
     Returns all the lead sources you've set up in the Admissions settings.
