@@ -2830,6 +2830,17 @@ def get_occupations():
     return get_anonymous('getOccupations')
 
 
+def get_online_payment_url(person_id: str = None):
+    """
+    Gets a special url for students to pay online. This link is good for 30 days.
+
+    :param person_id: The numeric ID of the person you're interested in.
+    :returns: String containing xml or lxml element.
+    """
+
+    return get_anonymous('getOnlinePaymentUrl', person_id=person_id)
+
+
 def get_organization(organization_id: str = None):
     """
     Returns basic profile data about an organization: name, type, tags, and contact information (address, phone, email).
