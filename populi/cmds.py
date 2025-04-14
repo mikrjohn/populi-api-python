@@ -1,4 +1,4 @@
-from .driver import initialize, get_anonymous, get_all_anonymous
+from .driver import get_anonymous, get_all_anonymous
 
 
 def add_address(

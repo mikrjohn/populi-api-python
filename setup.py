@@ -10,11 +10,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="populi-mrobison",
-    version="0.0.8",
-    author="Mike Robison",
-    author_email="mrobison@wts.edu",
-    description="A module for interacting with the populi api.",
+    name="populi-rguss",
+    version="1.0.0",
+    author="Robert Guss",
+    author_email="rguss@wts.edu",
+    description="A module for interacting with the Populi JSON API.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/wts-dev/populi-api-python",
@@ -24,18 +24,18 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=['lxml', 'pycurl'],
+    install_requires=["pycurl"],
 )
 
-#from distutils.core import setup
+# from distutils.core import setup
 
 # To use locally: pip install -e ../populi-api-python/
 
-#setup(name='populi',
+# setup(name='populi',
 #    version='1.0',
 #    py_modules=['populi'],
 #    install_requires=[
 #        'lxml',
 #        'pycurl'
 #    ]
-#)
+# )

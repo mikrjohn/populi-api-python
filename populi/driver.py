@@ -1,10 +1,10 @@
 import logging
 import pycurl
-import lxml.etree as etree
+import json
 from io import BytesIO
 import time
 from urllib.parse import urlencode
-from os import environ, path
+from os import environ
 
 from . import exceptions
 
@@ -24,6 +24,9 @@ def request(endpoint, parameters, curl_options=[]):
     c.setopt(pycurl.POST, 1)
     c.setopt(pycurl.POSTFIELDS, urlencode(parameters, True))
     c.setopt(pycurl.WRITEDATA, b)
+    
+    # Set headers for JSON content
+    c.setopt(pycurl.HTTPHEADER, ['Accept: application/json', 'Content-Type: application/x-www-form-urlencoded'])
 
     for opt_name, opt_value in curl_options:
         c.setopt(opt_name, opt_value)
@@ -77,9 +80,9 @@ class driver(object):
             'password': password
         }
 
-        (response, xml) = driver.call_populi(parameters, skip_access_key=True)
+        (response, json_data) = driver.call_populi(parameters, skip_access_key=True)
 
-        return xml.find('access_key').text
+        return json_data.get('access_key')
 
     @staticmethod
     def call_populi(parameters, skip_access_key=False, raw_data=False):
@@ -89,7 +92,7 @@ class driver(object):
                 if skip_access_key is False:
                     parameters.update({'access_key': driver.access_key})
 
-                for p in parameters.keys():
+                for p in list(parameters.keys()):
                     if isinstance(parameters[p], list) and p[-2:] != '[]':
                         parameters[p+'[]'] = parameters[p]
                         del parameters[p]
@@ -99,12 +102,20 @@ class driver(object):
                 if raw_data:
                     return b, None
 
-                xml = etree.parse(b).getroot()
-
-                if xml.xpath('/error'):
-                    driver.raise_exception(xml)
-
-                return b, xml
+                try:
+                    json_data = json.loads(b.getvalue().decode('utf-8'))
+                    
+                    # Check for errors
+                    if 'error' in json_data:
+                        driver.raise_exception(json_data['error'])
+                    
+                    return b, json_data
+                except json.JSONDecodeError as e:
+                    # Handle case where response is not valid JSON
+                    logger.error(f"JSON parse error: {e}")
+                    logger.debug(f"Response content: {b.getvalue().decode('utf-8')}")
+                    raise exceptions.OtherError(f"Invalid JSON response: {e}")
+                    
             except exceptions.TooManyRequests:
                 time.sleep(retry)
                 retry += retry
@@ -117,9 +128,9 @@ class driver(object):
                 raise
 
     @staticmethod
-    def raise_exception(xml):
-        msg = xml.xpath('/error/message/text()')[0]
-        code = xml.xpath('/error/code/text()')[0]
+    def raise_exception(error):
+        msg = error.get('message', 'Unknown error')
+        code = error.get('code', 'OTHER_ERROR')
 
         try:
             raise exceptions.exception_lookup[code](msg)
@@ -128,47 +139,69 @@ class driver(object):
 
     @staticmethod
     def get_all_anonymous(task='', root_element='', **kwargs):
-
-        logger.debug("Executing %s" % task)
+        """
+        Handle paginated results with the JSON API
+        
+        For JSON API, we'll collect all pages into a single result array
+        """
+        logger.debug(f"Executing {task}")
 
         kwargs['page'] = 1
         kwargs['task'] = task
-        total = 1
-        curr = 0
-        master = None
-        subelement = False
+        total_results = 1
+        current_count = 0
+        all_results = []
+        metadata = {}
 
-        while total > curr:
-            logger.debug("Page %d" % kwargs['page'])
+        while current_count < total_results:
+            logger.debug(f"Page {kwargs['page']}")
 
-            (result, xml) = driver.call_populi(kwargs)
-            total = int(xml.get('num_results'))
-
-            els = xml.findall(root_element)
-            if not els and len(xml.getchildren()) == 1:
-                els = xml[0].findall(root_element)
-                subelement = True
-
-            curr += len(els)
-
-            if master is None:
-                master = xml
-            else:
-                for elt in els:
-                    if subelement:
-                        master.getchildren()[0].append(elt)
-                    else:
-                        master.append(elt)
-            logger.debug("Page: %d (%d/%d)" % (kwargs['page'], curr, total))
-
+            (result, json_data) = driver.call_populi(kwargs)
+            
+            # Extract the results based on the root_element if present
+            results = json_data.get(root_element, [])
+            if not results and isinstance(json_data, dict):
+                # If no root element is found, look for any array in the response
+                for key, value in json_data.items():
+                    if isinstance(value, list):
+                        results = value
+                        if not root_element:
+                            root_element = key
+                        break
+            
+            # Extract metadata
+            if isinstance(json_data, dict):
+                metadata = {k: v for k, v in json_data.items() if not isinstance(v, list)}
+                
+                # Check for total number of results if available
+                if 'total' in metadata:
+                    total_results = metadata['total']
+                elif 'num_results' in metadata:
+                    total_results = metadata['num_results']
+                else:
+                    # If total count not available, assume we're done after this page
+                    total_results = current_count + len(results)
+            
+            # Add the results to our collection
+            all_results.extend(results)
+            current_count += len(results)
+            
+            logger.debug(f"Page: {kwargs['page']} ({current_count}/{total_results})")
+            
             kwargs['page'] += 1
+            
+            # Check if there are more pages
+            if len(results) == 0 or current_count >= total_results:
+                break
 
-        xml_string = etree.tostring(master, xml_declaration=True, encoding="UTF-8")
+        # Create a complete response with all results
+        complete_response = metadata.copy()
+        complete_response[root_element] = all_results
+        
+        return json.dumps(complete_response), complete_response
 
-        return xml_string, master
 
-
-use_lxml = False
+use_native = False
 
 
 def initialize(
@@ -176,10 +209,11 @@ def initialize(
         username: str="",
         password: str="",
         access_key: str=None,
-        asXML: bool=False,
+        asXML: bool=False,  # Kept for backward compatibility, renamed to use_native
         curl_options: (list, tuple)=[]):
-    global use_lxml
-    use_lxml = asXML
+    global use_native
+    # asXML is now a flag for using native JSON objects vs string
+    use_native = asXML
 
     driver.initialize(
         endpoint=endpoint,
@@ -198,34 +232,30 @@ def get_anonymous(task, raw_data=False, **kwargs):
 
     new_kwargs.update({'task': task})
 
-    logger.debug("Executing %s" % task)
+    logger.debug(f"Executing {task}")
 
-    (result, xml) = driver.call_populi(new_kwargs, raw_data=raw_data)
+    (result, json_data) = driver.call_populi(new_kwargs, raw_data=raw_data)
 
-    if xml is None:
+    if json_data is None:
         return result.read()
 
-    if use_lxml:
-        if xml.tag == 'code':
-            raise exceptions.OtherError(xml.text)
-        return xml
+    if use_native:
+        return json_data
     else:
-        return result.getvalue().decode('UTF-8')
+        return json.dumps(json_data)
 
 
-def get_all_anonymous(task, root_element, **kwargs):
+def get_all_anonymous(task, root_element='', **kwargs):
     new_kwargs = {}
 
     for argc, argv in kwargs.items():
         if argv is not None:
             new_kwargs[argc] = argv
 
-    (result, xml) = driver.get_all_anonymous(
+    (result, json_data) = driver.get_all_anonymous(
         task=task, root_element=root_element, **new_kwargs)
 
-    if use_lxml:
-        if xml.tag == 'code':
-            raise exceptions.OtherError(xml.text)
-        return xml
+    if use_native:
+        return json_data
     else:
-        return result.decode('UTF-8')
+        return result

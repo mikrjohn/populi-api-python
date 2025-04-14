@@ -7,18 +7,20 @@ from bs4 import BeautifulSoup
 This is a utility for building the command list from the populi api webpage.
 '''
 api_reference_url = "https://support.populiweb.com/hc/en-us/articles/223798747-API-Reference"
+
+# These define the root element for paginated responses in the JSON API
 root_elements = {
-    'getEntriesForAccount': "ledger_entry",
-    'getInvoices': "invoice",
-    'getStudentBalances': "student_balance",
-    'getTermStudents': "student",
-    'getTransactions': "transaction",
-    'getPendingCharges': "pending_charge",
-    'getRoleMembers': 'person',
-    'getTaggedPeople': 'person',
-    'getTodos': 'todo',
-    'getVoidedTransactions': 'transaction',
-    'getOrganizations': 'organization',
+    'getEntriesForAccount': "ledger_entries",
+    'getInvoices': "invoices",
+    'getStudentBalances': "student_balances",
+    'getTermStudents': "students",
+    'getTransactions': "transactions",
+    'getPendingCharges': "pending_charges",
+    'getRoleMembers': 'people',
+    'getTaggedPeople': 'people',
+    'getTodos': 'todos',
+    'getVoidedTransactions': 'transactions',
+    'getOrganizations': 'organizations',
 }
 
 raw_elements = {'downloadFile', 'downloadBackup', 'downloadStudentSchedule'}
@@ -40,7 +42,7 @@ class Command(object):
     """
     {}
     {}
-    :returns: String containing xml or an lxml element.
+    :returns: JSON string or native Python object, depending on initialization.
     """
     
     return get_{}anonymous('{}'{})'''
@@ -51,9 +53,9 @@ class Command(object):
 
         if self.paging():
             if passing:
-                passing = "root_element='{}', {}".format(root_elements[self.name], passing)
+                passing = "root_element='{}', {}".format(root_elements.get(self.name, ''), passing)
             else:
-                passing = "root_element='{}'".format(root_elements[self.name])
+                passing = "root_element='{}'".format(root_elements.get(self.name, ''))
 
         return template.format(
             sub(r'([A-Z])', r'_\1', self.name).lower(),
